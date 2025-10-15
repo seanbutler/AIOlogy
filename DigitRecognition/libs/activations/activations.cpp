@@ -19,23 +19,6 @@ double relu(double x) {
     return std::max(0.0, x);
 }
 
-double leaky_relu(double x, double alpha) {
-    return x > 0 ? x : alpha * x;
-}
-
-double tanh_activation(double x) {
-    return std::tanh(x);
-}
-
-double swish(double x) {
-    return x * sigmoid(x);
-}
-
-double gelu(double x) {
-    // Gaussian Error Linear Unit approximation
-    return 0.5 * x * (1.0 + std::tanh(std::sqrt(2.0 / M_PI) * (x + 0.044715 * std::pow(x, 3))));
-}
-
 // Vector activation functions
 std::vector<double> softmax(const std::vector<double>& input) {
     std::vector<double> result(input.size());
@@ -68,19 +51,11 @@ double relu_derivative(double x) {
     return x > 0 ? 1.0 : 0.0;
 }
 
-double tanh_derivative(double x) {
-    double t = std::tanh(x);
-    return 1.0 - t * t;
-}
-
 // Factory function to get activation by name
 ActivationFunction get_activation(const std::string& name) {
     static std::unordered_map<std::string, ActivationFunction> activations_map = {
         {"sigmoid", sigmoid},
-        {"relu", relu},
-        {"tanh", tanh_activation},
-        {"swish", swish},
-        {"gelu", gelu}
+        {"relu", relu}
     };
     
     auto it = activations_map.find(name);
@@ -97,8 +72,6 @@ ActivationPair get_activation_pair(const std::string& name) {
         return ActivationPair(sigmoid, sigmoid_derivative, "sigmoid");
     } else if (name == "relu") {
         return ActivationPair(relu, relu_derivative, "relu");
-    } else if (name == "tanh") {
-        return ActivationPair(tanh_activation, tanh_derivative, "tanh");
     }
     
     throw std::invalid_argument("Unknown activation pair: " + name);
@@ -122,9 +95,6 @@ void test_activations() {
     // Test individual functions
     std::cout << "Sigmoid: " << sigmoid(test_value) << std::endl;
     std::cout << "ReLU: " << relu(test_value) << std::endl;
-    std::cout << "Tanh: " << tanh_activation(test_value) << std::endl;
-    std::cout << "Swish: " << swish(test_value) << std::endl;
-    std::cout << "GELU: " << gelu(test_value) << std::endl;
     
     // Test factory pattern
     std::cout << "\n--- Factory Pattern Test ---" << std::endl;

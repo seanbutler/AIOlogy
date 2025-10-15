@@ -16,10 +16,6 @@ using VectorActivationFunction = std::function<std::vector<double>(const std::ve
 // Single-value activation functions
 double sigmoid(double x);
 double relu(double x);
-double leaky_relu(double x, double alpha = 0.01);
-double tanh_activation(double x);
-double swish(double x);
-double gelu(double x);
 
 // Vector activation functions
 std::vector<double> softmax(const std::vector<double>& input);
@@ -27,7 +23,6 @@ std::vector<double> softmax(const std::vector<double>& input);
 // Derivative functions (useful for backpropagation)
 double sigmoid_derivative(double x);
 double relu_derivative(double x);
-double tanh_derivative(double x);
 
 // Factory function to get activation by name
 ActivationFunction get_activation(const std::string& name);
