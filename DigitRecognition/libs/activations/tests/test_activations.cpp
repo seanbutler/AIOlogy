@@ -40,66 +40,20 @@ bool test_sigmoid() {
 
 bool test_relu() {
     std::cout << "Testing ReLU function..." << std::endl;
-    
+
     // Test positive values
     ASSERT_NEAR(activations::relu(5.0), 5.0, 1e-10);
     ASSERT_NEAR(activations::relu(0.1), 0.1, 1e-10);
-    
+
     // Test zero and negative values
     ASSERT_NEAR(activations::relu(0.0), 0.0, 1e-10);
     ASSERT_NEAR(activations::relu(-5.0), 0.0, 1e-10);
     ASSERT_NEAR(activations::relu(-0.1), 0.0, 1e-10);
-    
+
     std::cout << "✓ ReLU tests passed" << std::endl;
     return true;
 }
 
-// bool test_softmax() {
-//     std::cout << "Testing softmax function..." << std::endl;
-    
-//     // Test that outputs sum to 1
-//     std::vector<double> input = {1.0, 2.0, 3.0, 4.0, 5.0};
-//     auto result = activations::softmax(input);
-    
-//     double sum = 0.0;
-//     for (double val : result) {
-//         sum += val;
-//         ASSERT_TRUE(val >= 0.0);  // All values should be non-negative
-//     }
-//     ASSERT_NEAR(sum, 1.0, 1e-10);  // Sum should be 1
-    
-//     // Test that larger inputs produce larger outputs
-//     std::vector<double> simple_input = {1.0, 2.0, 3.0};
-//     auto simple_result = activations::softmax(simple_input);
-//     ASSERT_TRUE(simple_result[0] < simple_result[1]);
-//     ASSERT_TRUE(simple_result[1] < simple_result[2]);
-    
-//     // Test single element
-//     std::vector<double> single = {5.0};
-//     auto single_result = activations::softmax(single);
-//     ASSERT_NEAR(single_result[0], 1.0, 1e-10);
-    
-//     std::cout << "✓ Softmax tests passed" << std::endl;
-//     return true;
-// }
-
-// bool test_derivatives() {
-//     std::cout << "Testing derivative functions..." << std::endl;
-    
-//     // Test sigmoid derivative
-//     double x = 1.0;
-//     double sigmoid_val = activations::sigmoid(x);
-//     double expected_derivative = sigmoid_val * (1.0 - sigmoid_val);
-//     ASSERT_NEAR(activations::sigmoid_derivative(x), expected_derivative, 1e-10);
-    
-//     // Test ReLU derivative
-//     ASSERT_NEAR(activations::relu_derivative(5.0), 1.0, 1e-10);
-//     ASSERT_NEAR(activations::relu_derivative(-5.0), 0.0, 1e-10);
-//     ASSERT_NEAR(activations::relu_derivative(0.0), 0.0, 1e-10);
-    
-//     std::cout << "✓ Derivative tests passed" << std::endl;
-//     return true;
-// }
 
 bool test_factory_functions() {
     std::cout << "Testing factory functions..." << std::endl;
