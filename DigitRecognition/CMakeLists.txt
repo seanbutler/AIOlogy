@@ -37,9 +37,11 @@ option(BUILD_TESTING "Build the testing tree" ON)
 
 # Add subdirectories for libraries
 add_subdirectory(libs/activations)
+add_subdirectory(libs/layers)
 
 # Link libraries (add any external libraries you need)
 target_link_libraries(${PROJECT_NAME} PRIVATE
+    layers
     activations
     # Add other libraries here, e.g., pthread, opencv, etc.
 )

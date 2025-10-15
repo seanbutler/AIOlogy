@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "libs/activations/activations.h"
+#include "libs/layers/layers.h"
 
 int main() {
     std::cout << "DigitRecognition Project\n";
@@ -11,6 +12,11 @@ int main() {
     
     // Test the activations library
     activations::test_activations();
+    
+    std::cout << "\n";
+    
+    // Test the layers library
+    layers::test_layers();
     
     std::cout << "\nTODO: Implement digit recognition functionality\n";
 
