@@ -1,0 +1,13 @@
+// version.h.in - Template file
+#pragma once
+
+
+
+namespace Version {
+    constexpr int MAJOR = @PROJECT_VERSION_MAJOR@;
+    constexpr int MINOR = @PROJECT_VERSION_MINOR@;
+    constexpr int PATCH = @PROJECT_VERSION_PATCH@;
+    constexpr const char* VERSION_STRING = "@PROJECT_VERSION@";
+    constexpr const char* BUILD_DATE = "@BUILD_DATE@";
+    constexpr const char* GIT_COMMIT = "@GIT_COMMIT@";
+}

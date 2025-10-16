@@ -1,7 +1,10 @@
 # DigitRecognition
 
-A C++ neural network implementation for (in the first case) handwritten digit recognition using the MNIST dataset, but should be suitable for learning in the general case.
+![Version](https://img.shields.io/badge/version-0.3.0-blue)
+![Status](https://img.shields.io/badge/status-stable-green)
+![C++](https://img.shields.io/badge/C++-23-blue)
 
+A C++ neural network implementation for (in the first case) handwritten digit recognition using the MNIST dataset, but should be suitable for learning in the general case.
 
 ## Overview
 
@@ -23,19 +26,28 @@ This project implements a **from-scratch neural network** in C++ designed to rec
 
 ```
 DigitRecognition/
-├── libs/
-│   ├── activations/          # Activation functions (sigmoid, ReLU, softmax)
-│   ├── layers/               # Neural network layer implementation
-│   └── networks/             # Network management and training
-├── scripts/
-│   ├── build.ps1            # Build the entire project
-│   ├── run.ps1              # Execute the main application
-│   ├── test.ps1             # Run all unit tests
-│   └── get_mnist.py         # Download MNIST dataset
-├── build/                   # CMake build directory
-├── mnist_data/              # Raw MNIST dataset files
-├── mnist_images/            # Processed MNIST images (PNG format)
-└── main.cpp                 # Main application entry point
+├── .venv/                   # Python virtual environment
+├── .vscode/                 # VS Code configuration
+├── build/                   # CMake build output directory
+├── data/                    # Data directory
+│   ├── mnist_data/          # Raw MNIST dataset files (PyTorch format)
+│   └── mnist_images/        # Processed MNIST images (PNG format)
+├── libs/                    # Core neural network libraries
+│   ├── activations/         # Activation functions (sigmoid, ReLU, softmax)
+│   ├── layers/              # Neural network layer implementation
+│   └── networks/            # Network management and training
+├── scripts/                 # Build and utility scripts
+│   ├── build.ps1           # Build the entire project
+│   ├── run.ps1             # Execute the main application
+│   ├── test.ps1            # Run all unit tests
+│   └── get_mnist.py        # Download MNIST dataset
+├── .gitignore              # Git ignore patterns
+├── CHANGELOG.md            # Detailed version history
+├── CMakeLists.txt          # Main CMake configuration with version
+├── main.cpp                # Main application entry point
+├── README.md               # Project overview and documentation
+├── version.h               # Generated version header (auto-created)
+└── version.h.in            # Version template for C++ code generation
 ```
 
 ## Quick Start

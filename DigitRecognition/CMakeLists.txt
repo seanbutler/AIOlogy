@@ -1,12 +1,36 @@
 # CMakeLists.txt for DigitRecognition project
 cmake_minimum_required(VERSION 3.16)
 
-# Project name and version
-project(DigitRecognition VERSION 0.1.0 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+
+
+# Project name and version
+project(DigitRecognition VERSION 0.1.0 LANGUAGES CXX)
+
+# Get current date and git info
+string(TIMESTAMP BUILD_DATE "%Y-%m-%d %H:%M:%S")
+execute_process(
+    COMMAND git rev-parse --short HEAD
+    OUTPUT_VARIABLE GIT_COMMIT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+
+# Generate the actual header file
+configure_file(
+    "${CMAKE_SOURCE_DIR}/version.h.in"
+    "${CMAKE_SOURCE_DIR}/version.h"
+    @ONLY
+)
+
+# Make sure your targets can find it
+# target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR})
+
+
 
 # Add compile options for better debugging and warnings
 if(MSVC)
