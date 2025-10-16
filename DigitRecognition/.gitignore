@@ -1,1 +1,3 @@
 build
+data/mnist_data/*
+data/mnist_images/*
