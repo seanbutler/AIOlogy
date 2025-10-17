@@ -11,7 +11,7 @@
 #include <random>
 #include <iomanip>
 
-namespace NN {
+namespace ANN {
 
     class Layer {
     public:
@@ -20,7 +20,7 @@ namespace NN {
             , outputs_(output_size, 0.0)
             , weights_(input_size * output_size, 0.0) // flat vector to hold weights, think of me as a 2d array, this is where the learning is recorded    
             , biases_(output_size, 0.0)
-            , activation_function(activations::get_activation("sigmoid"))  // Default activation function
+            , activation_function(ANN::get_activation("sigmoid"))  // Default activation function
         {
             // Initialize weights randomly
             randomly_initialize_weights();

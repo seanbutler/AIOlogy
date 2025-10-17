@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <string>
 
-namespace activations {
+namespace ANN {
 
 // Function type aliases for better readability
 using ActivationFunction = std::function<double(double)>;

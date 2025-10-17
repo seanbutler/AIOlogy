@@ -3,7 +3,7 @@
 #include <vector>
 #include "layers/layers.h"
 
-namespace NN {
+namespace ANN {
 
     class Network {
         public:

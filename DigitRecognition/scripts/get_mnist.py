@@ -11,13 +11,12 @@ for split in [("train", True), ("test", False)]:
     name, train_flag = split
     ds = datasets.MNIST(root=root, download=True, train=train_flag)
     split_dir = os.path.join(out_dir, name)
-    for image, label in ds:
-        label_dir = os.path.join(split_dir, str(label))
-        os.makedirs(label_dir, exist_ok=True)
-    # iterate with index to create unique filenames
+    os.makedirs(split_dir, exist_ok=True)
+    # iterate with index to create unique filenames in train/test folder
     for idx in range(len(ds)):
         img, lbl = ds[idx]
         # img is already a PIL Image from MNIST dataset
-        fname = os.path.join(out_dir, name, str(lbl), f"{lbl}_{idx:05d}.png")
+        # Format: {label}_{index}.png (e.g., 5_00123.png) in train/ or test/ folder
+        fname = os.path.join(split_dir, f"{lbl}_{idx:05d}.png")
         img.save(fname)
 print("Saved MNIST images to", out_dir)

@@ -2,7 +2,7 @@
 #include <cmath>
 #include <vector>
 
-namespace activations {
+namespace ANN {
 
     // Sigmoid activation function
     double sigmoid(double x) {
