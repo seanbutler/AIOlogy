@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 3.16)
 # Library name
 set(LIBRARY_NAME layers)
 
-# Add the library
-add_library(${LIBRARY_NAME}
+# Add the library as STATIC
+add_library(${LIBRARY_NAME} STATIC
     layers.cpp
     layers.h
     # Add more source files here as needed

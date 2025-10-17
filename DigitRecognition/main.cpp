@@ -2,6 +2,8 @@
 #include <string>
 #include "libs/activations/activations.h"
 #include "libs/layers/layers.h"
+#include "libs/images/images.hpp"
+
 #include "version.h"
 
 int main() {
@@ -23,6 +25,9 @@ int main() {
     std::cout << "\n\n";
 
     std::cout << "\nTODO: Implement digit recognition functionality\n";
+
+    ANN::load_image("./data/mnist_images/train/0_00001.png");
+
 
     return 0;
 }
