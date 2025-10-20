@@ -96,13 +96,15 @@ option(BUILD_TESTING "Build the testing tree" ON)
 add_subdirectory(libs/activations)
 add_subdirectory(libs/layers)
 add_subdirectory(libs/images)
+add_subdirectory(libs/training)
+
 
 # Link libraries (add any external libraries you need)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     layers
     activations
     images
-    # Add other libraries here, e.g., pthread, opencv, etc.
+    training
 )
 
 # Set debugging properties for Visual Studio
