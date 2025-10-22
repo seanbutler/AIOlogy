@@ -52,6 +52,13 @@ namespace ANN {
 
             void train(const std::vector<double>& input_data, const int label)
             {
+                // Input validation
+                if (input_data.size() != input_layer.outputs_.size()) {
+                    throw std::runtime_error("Input size mismatch: expected " + 
+                        std::to_string(input_layer.outputs_.size()) + ", got " + 
+                        std::to_string(input_data.size()));
+                }
+                
                 std::cout << "Training with input size: " << input_data.size() << " and label: " << label ;
 
                 // Set input layer data
@@ -73,7 +80,7 @@ namespace ANN {
                             layers[i + 1].inputs_ = layers[i].outputs_;
                         }
                     }
-                    
+
                     // Pass last hidden layer output to output layer
                     output_layer.inputs_ = layers.back().outputs_;
                 } else {
@@ -85,7 +92,7 @@ namespace ANN {
 
                 // Calculate loss
                 double loss = 0.0;
-                std::vector<double> target = label_to_one_hot_vector(label, output_layer.outputs_.size());
+                std::vector<double> target = label_to_one_hot_vector(label, static_cast<int>(output_layer.outputs_.size()));
                 for (size_t i = 0; i < target.size(); ++i) {
                     double diff = output_layer.outputs_[i] - target[i];
                     loss += diff * diff; // Mean Squared Error
@@ -104,8 +111,8 @@ namespace ANN {
                 std::vector<double> gradients = output_layer.backward(output_layer.inputs_, loss_gradients);
                 
                 // Propagate backwards through hidden layers
-                for (int i = layers.size() - 1; i >= 0; --i) {
-                    gradients = layers[i].backward(layers[i].inputs_, gradients);
+                for (size_t i = layers.size(); i > 0; --i) {
+                    gradients = layers[i-1].backward(layers[i-1].inputs_, gradients);
                 }
                 
                 // Finally propagate to input layer (though input layer gradients aren't used)
@@ -146,6 +153,62 @@ namespace ANN {
 
             }
 
+
+
+            std::vector<double> predict_probabilities(const std::vector<double>& input_data) {
+                // Input validation
+                if (input_data.size() != input_layer.outputs_.size()) {
+                    throw std::runtime_error("Input size mismatch: expected " + 
+                        std::to_string(input_layer.outputs_.size()) + ", got " + 
+                        std::to_string(input_data.size()));
+                }
+                
+                // Set input layer data
+                input_layer.inputs_ = input_data;
+
+                // Forward Pass - Chain layer outputs to next layer inputs
+                input_layer.forward();
+                
+                // Pass input layer outputs to first hidden layer (if exists)
+                if (!layers.empty()) {
+                    layers[0].inputs_ = input_layer.outputs_;
+                    
+                    // Process hidden layers - use size_t for loop counter
+                    for(size_t i = 0; i < layers.size(); ++i) {
+                        layers[i].forward();
+                        
+                        // Pass current layer output to next layer input
+                        if (i < layers.size() - 1) {
+                            layers[i + 1].inputs_ = layers[i].outputs_;
+                        }
+                    }
+                    
+                    // Pass last hidden layer output to output layer
+                    output_layer.inputs_ = layers.back().outputs_;
+                } else {
+                    // Direct connection: input -> output (no hidden layers)
+                    output_layer.inputs_ = input_layer.outputs_;
+                }
+                
+                output_layer.forward();
+
+                return output_layer.outputs_;
+            }
+
+            int predict_label(const std::vector<double>& input_data) {
+                auto outputs = predict_probabilities(input_data);
+                // Find index of max output 
+                // TODO utility function?
+                int predicted_label = 0;
+                double max_value = outputs[0];
+                for (size_t i = 1; i < outputs.size(); ++i) {
+                    if (outputs[i] > max_value) {
+                        max_value = outputs[i];
+                        predicted_label = static_cast<int>(i);
+                    }
+                }
+                return predicted_label;
+            }
     private:
         Layer input_layer;
         std::vector<Layer> layers;
