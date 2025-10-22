@@ -2,6 +2,12 @@
 #include <iostream>
 #include <string>
 #include <filesystem>
+#include <iomanip>
+#include <random>
+#include <algorithm>
+#include <execution>
+#include <atomic>
+
 
 #include "libs/activations/activations.h"
 #include "libs/layers/layers.h"
@@ -11,15 +17,20 @@
 
 #include "version.h"
 
-int main(int argc, char** argv) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     std::cout << "DigitRecognition v" << Version::VERSION_STRING << std::endl;
     std::cout << "Built: " << Version::BUILD_DATE << std::endl;
     std::cout << "Git: " << Version::GIT_COMMIT << std::endl << std::endl;
     
-    ANN::Network network({784, 32, 16, 10});
+    // Create a larger network with better learning rate
+    ANN::Network network({784, 64, 64, 10}, 0.01);
     ANN::TrainingSet training_set;
 
-    for (const auto& entry : std::filesystem::directory_iterator("./data/mnist_images/test/")) {
+    //
+    // Load TRAINING data from train directory
+    //
+    
+    for (const auto& entry : std::filesystem::directory_iterator("./data/mnist_images/train/")) {
         if (entry.is_regular_file()) {
             if ( std::filesystem::path(entry).extension() == ".png" ) {
                 
@@ -30,17 +41,104 @@ int main(int argc, char** argv) {
 
                 training_set.add_instance({image_data, label, filename});
 
-                std::cout << "Added training instance: " << training_set.get_instances().size() << " "  
-                          << "file: " << filename << " label: " << label << " size: " << image_data.size() << "\r";
+                // std::cout << "Added training instance: " << training_set.get_instances().size()   
+                //         << " file: " << filename 
+                //         << " label: " << label 
+                //         << " size: " << image_data.size() 
+                //         << "\r";
             }
         }
     }
 
+
     std::cout << "\nTraining set constructed from data, size " << training_set.get_instances().size() << std::endl;
 
-    for (const auto & instance : training_set.get_instances()) {
-        network.train(instance.input_data, instance.label);
+    // // Check data distribution
+    // std::vector<int> label_counts(10, 0);
+    // for (const auto& instance : training_set.get_instances()) {
+    //     label_counts[instance.label]++;
+    // }
+    
+    // std::cout << "Data distribution:" << std::endl;
+    // for (int i = 0; i < 10; ++i) {
+    //     std::cout << "Digit " << i << ": " << label_counts[i] << " samples" << std::endl;
+    // }
+    // std::cout << std::endl;
+
+    std::cout << "Training network..." << std::endl;
+    
+    // Shuffle the training data to prevent catastrophic forgetting
+    auto instances = training_set.get_instances();
+    std::random_device rd;
+    std::mt19937 g(rd());
+    
+    // Train for multiple epochs
+    const int epochs = 3;
+    std::cout << "Training for " << epochs << " epochs on " << instances.size() << " samples..." << std::endl;
+    
+    for (int epoch = 0; epoch < epochs; ++epoch) {
+        std::cout << "Epoch " << (epoch + 1) << "/" << epochs << ": ";
+
+        std::shuffle(instances.begin(), instances.end(), g);
+        
+        int samples_processed = 0;                
+        for (const auto & instance : instances) {
+            network.train(instance.input_data, instance.label);
+            samples_processed++;
+        }
+        
+        // std::atomic<int> samples_processed{0};
+        // std::for_each(std::execution::par, instances.begin(), instances.end(),
+        //       [&](const auto& instance) {
+        //             // Each thread processes different samples
+        //             network.train(instance.input_data, instance.label);
+        //             samples_processed.fetch_add(1);
+        //       });
+
+        std::cout << std::endl << "  Completed " << samples_processed << " samples\n";
     }
+    std::cout << "Training completed!\n";
+
+    std::cout << "\n\nTesting network on test data..." << std::endl;
+    
+    int count = 0;
+    int correct = 0;
+    for (const auto& entry : std::filesystem::directory_iterator("./data/mnist_images/test/")) {
+        if (entry.is_regular_file()) {
+            if ( std::filesystem::path(entry).extension() == ".png" ) {
+                
+                std::string filename = std::filesystem::path(entry).filename().string();
+                int label = std::stoi(filename.substr(0, filename.find('_')));
+
+                std::vector<double> image_data = ANN::load_image(std::filesystem::path(entry).string());
+
+                //
+                // test it 
+                //
+                int predicted = network.predict_label(image_data);
+                auto raw_outputs = network.predict_probabilities(image_data);
+                
+                std::cout << "File: " << filename << " label: " << label << " predicted: " << predicted;
+
+                count++;                
+                if ( predicted == label ) {
+                    std::cout << " ✓" << std::endl;
+                    correct++;
+                } else {
+                    std::cout << " ✗" << std::endl;
+                }
+                
+            }
+        }
+    }
+    
+    // Final accuracy summary
+    std::cout << "\n=== FINAL RESULTS ===\n";
+    std::cout << "Total tested: " << count << " images\n";
+    std::cout << "Correct predictions: " << correct << "\n";
+    std::cout << "Final accuracy: " << std::fixed << std::setprecision(2) 
+              << (static_cast<double>(correct) / static_cast<double>(count)) * 100.0 
+              << "%\n";
 
     return 0;
 }

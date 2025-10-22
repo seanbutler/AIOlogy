@@ -26,7 +26,9 @@ namespace ANN {
             , activation_function(ANN::get_activation("sigmoid"))  // Default activation function
             , activation_derivative(ANN::sigmoid_derivative)   // Default activation derivative
         {
+            //
             // Initialize weights randomly
+            //
             randomly_initialize_weights();
         }
 
@@ -44,14 +46,15 @@ namespace ANN {
 
         std::vector<double> forward()
         {
+            //
             // Reset both pre-activations and outputs
+            //
             pre_activations_.assign(pre_activations_.size(), 0.0);
             outputs_.assign(outputs_.size(), 0.0);
 
             //
             // calculate my outputs
             //
-            
             for(auto output_index = 0; output_index< outputs_.size(); output_index++) {
 
                 for(auto input_index = 0; input_index < inputs_.size(); input_index++) 
