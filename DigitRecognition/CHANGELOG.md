@@ -1,5 +1,11 @@
 # CHANGELOG
 
+
+## [0.3.1] - 2025-10-XX
+### Added
+- training instance and training set
+
+
 ## [0.3.0] - 2025-10-16
 ### Added
 - MNIST dataset integration

@@ -26,6 +26,9 @@ namespace ANN {
             randomly_initialize_weights();
         }
 
+        ~Layer() = default;
+        
+
         void randomly_initialize_weights()
         {
             std::mt19937 rng(std::random_device{}());
@@ -37,19 +40,12 @@ namespace ANN {
 
         std::vector<double> forward()
         {
-            //
-            // take all the activations from the previous layer or exit
-            //
-            if (previous_layer) {
-                inputs_ = previous_layer->outputs_;
-            }
-
             outputs_.assign(outputs_.size(), 0.0); // Reset outputs to zero before calculation
 
             //
             // calculate my outputs
             //
-
+            
             for(auto output_index = 0; output_index< outputs_.size(); output_index++) {
 
                 for(auto input_index = 0; input_index < inputs_.size(); input_index++) 
@@ -62,25 +58,25 @@ namespace ANN {
                 outputs_[output_index] = activation_function(outputs_[output_index]);
             }
 
-            return outputs_; // Just return input for now
+            return outputs_;
         }
 
-        // std::vector<double> backward(const std::vector<double>& input, const std::vector<double>& grad_output)
-        // {
-        //     // Backpropagation pass stub
-        //     return input; // Just return input for now
-        // }
+        std::vector<double> backward(const std::vector<double>& input, 
+                                        const std::vector<double>& grad_output)
+        {
+            // Backpropagation pass stub
+            return input; // Just return input for now
+        }
 
         std::vector<double> inputs_;    // input values, place to store result of previous layer or set inputs if first layer
         std::vector<double> weights_;   // size = current neurons * previous neurons
         std::vector<double> biases_;    // size = current neurons. one bias per output neuron
-        std::vector<double> outputs_;    // activation value, result of activation function
+        std::vector<double> outputs_;   // activation value, result of activation function
 
-        std::unique_ptr<Layer> previous_layer; // pointer to previous layer, null if first layer
-        std::unique_ptr<Layer> next_layer; // pointer to next layer, null if last layer
+        std::shared_ptr<Layer> previous_layer;  // pointer to previous layer, null if first layer
+        std::shared_ptr<Layer> next_layer;      // pointer to next layer, null if last layer
 
         std::function<double(double)> activation_function;      // activation function for this layer
     };
-
 
 } // namespace layers

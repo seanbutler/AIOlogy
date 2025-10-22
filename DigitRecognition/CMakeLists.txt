@@ -9,9 +9,8 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
-
 # Project name and version
-project(DigitRecognition VERSION 0.1.0 LANGUAGES CXX)
+project(DigitRecognition VERSION 0.3.0 LANGUAGES CXX)
 
 # Fetch SDL2 and SDL2_image dependencies (more stable than SDL3)
 FetchContent_Declare(
