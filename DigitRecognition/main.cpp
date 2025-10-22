@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     ANN::Network network({784, 32, 16, 10});
     ANN::TrainingSet training_set;
 
-    for (const auto& entry : std::filesystem::directory_iterator("./data/mnist_images/train/")) {
+    for (const auto& entry : std::filesystem::directory_iterator("./data/mnist_images/test/")) {
         if (entry.is_regular_file()) {
             if ( std::filesystem::path(entry).extension() == ".png" ) {
                 

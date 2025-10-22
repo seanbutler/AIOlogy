@@ -16,9 +16,10 @@ namespace ANN {
 
     class Network {
         public:
-            Network(const std::vector<int>&layer_sizes = {784, 128, 64, 10})
+            Network(const std::vector<int>&layer_sizes = {784, 128, 64, 10}, double lr = 0.01)
                 : input_layer(layer_sizes[0], layer_sizes[1]),
-                  output_layer(layer_sizes[layer_sizes.size()-2], layer_sizes[layer_sizes.size()-1])
+                  output_layer(layer_sizes[layer_sizes.size()-2], layer_sizes[layer_sizes.size()-1]),
+                  learning_rate(lr)
             {
                 // Create hidden layers (if any)
                 for(auto i = 1; i < layer_sizes.size() - 2; i++) {
@@ -56,11 +57,30 @@ namespace ANN {
                 // Set input layer data
                 input_layer.inputs_ = input_data;
 
-                // Forward Pass
+                // Forward Pass - Chain layer outputs to next layer inputs
                 input_layer.forward();
-                for(auto& layer : layers) {
-                    layer.forward();
+                
+                // Pass input layer outputs to first hidden layer (if exists)
+                if (!layers.empty()) {
+                    layers[0].inputs_ = input_layer.outputs_;
+                    
+                    // Process hidden layers
+                    for(size_t i = 0; i < layers.size(); ++i) {
+                        layers[i].forward();
+                        
+                        // Pass current layer output to next layer input
+                        if (i < layers.size() - 1) {
+                            layers[i + 1].inputs_ = layers[i].outputs_;
+                        }
+                    }
+                    
+                    // Pass last hidden layer output to output layer
+                    output_layer.inputs_ = layers.back().outputs_;
+                } else {
+                    // Direct connection: input -> output (no hidden layers)
+                    output_layer.inputs_ = input_layer.outputs_;
                 }
+                
                 output_layer.forward();
 
                 // Calculate loss
@@ -73,25 +93,64 @@ namespace ANN {
 
                 std::cout << " loss: " << loss << "\r";
 
-                // Backward Pass
-                output_layer.backward(output_layer.inputs_, {}); // grad_output is empty for now
-                for (int i = layers.size() - 1; i >= 0; --i) {
-                    layers[i].backward(layers[i].inputs_, {}); // grad_output is empty for now
+                // Backward Pass - Calculate loss gradients for output layer
+                std::vector<double> loss_gradients(output_layer.outputs_.size());
+                for (size_t i = 0; i < output_layer.outputs_.size(); ++i) {
+                    // MSE derivative: ∂Loss/∂output = 2 * (predicted - actual)
+                    loss_gradients[i] = 2.0 * (output_layer.outputs_[i] - target[i]);
                 }
-                input_layer.backward(input_layer.inputs_, {}); // grad_output is empty for now
+                
+                // Start backpropagation from output layer
+                std::vector<double> gradients = output_layer.backward(output_layer.inputs_, loss_gradients);
+                
+                // Propagate backwards through hidden layers
+                for (int i = layers.size() - 1; i >= 0; --i) {
+                    gradients = layers[i].backward(layers[i].inputs_, gradients);
+                }
+                
+                // Finally propagate to input layer (though input layer gradients aren't used)
+                if (!layers.empty()) {
+                    input_layer.backward(input_layer.inputs_, gradients);
+                } else {
+                    // Direct connection case
+                    input_layer.backward(input_layer.inputs_, gradients);
+                }
 
-                // // Update Weights and Biases (stub - not implemented)
-                // for (auto& layer : layers) {
-                //     // Placeholder for weight and bias updates
-                //     layer.weights_ = layer.weights_ - (learning_rate * layer.gradients_);
-                //     layer.biases_ = layer.biases_ - (learning_rate * layer.bias_gradients_);
-                // }   
+                // Update Weights and Biases for all layers
+                
+                // Update input layer
+                for (size_t i = 0; i < input_layer.weights_.size(); ++i) {
+                    input_layer.weights_[i] -= learning_rate * input_layer.weight_gradients_[i];
+                }
+                for (size_t i = 0; i < input_layer.biases_.size(); ++i) {
+                    input_layer.biases_[i] -= learning_rate * input_layer.bias_gradients_[i];
+                }
+                
+                // Update hidden layers
+                for (auto& layer : layers) {
+                    for (size_t i = 0; i < layer.weights_.size(); ++i) {
+                        layer.weights_[i] -= learning_rate * layer.weight_gradients_[i];
+                    }
+                    for (size_t i = 0; i < layer.biases_.size(); ++i) {
+                        layer.biases_[i] -= learning_rate * layer.bias_gradients_[i];
+                    }
+                }
+                
+                // Update output layer
+                for (size_t i = 0; i < output_layer.weights_.size(); ++i) {
+                    output_layer.weights_[i] -= learning_rate * output_layer.weight_gradients_[i];
+                }
+                for (size_t i = 0; i < output_layer.biases_.size(); ++i) {
+                    output_layer.biases_[i] -= learning_rate * output_layer.bias_gradients_[i];
+                }
+
             }
 
     private:
         Layer input_layer;
         std::vector<Layer> layers;
         Layer output_layer;
+        double learning_rate;  // Learning rate for gradient descent
 
     };
 
