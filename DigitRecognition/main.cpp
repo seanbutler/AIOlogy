@@ -39,7 +39,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     std::cout << " Time " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl << std::endl;
 
     // Create network from configuration
-    ANN::Network network(config.network.layers, config.network.learning_rate);
+    ANN::WeightInitConfig weight_config;
+    weight_config.method = config.network.weight_init.method;
+    weight_config.range = config.network.weight_init.range;
+    
+    ANN::Network network(config.network.layers, config.network.learning_rate, weight_config);
     ANN::TrainingSet training_set;
 
     //

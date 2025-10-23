@@ -18,6 +18,12 @@ public:
         std::vector<int> layers;
         double learning_rate;
         std::string activation;
+        
+        // Weight initialization
+        struct WeightInit {
+            std::string method;     // "uniform", "normal", "xavier", "he"
+            std::vector<double> range;  // [min, max] for uniform, [mean, std] for normal
+        } weight_init;
     } network;
 
     // Training configuration
@@ -63,6 +69,17 @@ public:
                 network.layers = net.value("layers", std::vector<int>{784, 128, 64, 10});
                 network.learning_rate = net.value("learning_rate", 0.01);
                 network.activation = net.value("activation", "sigmoid");
+                
+                // Parse weight initialization
+                if (net.contains("weight_init")) {
+                    auto weight_init = net["weight_init"];
+                    network.weight_init.method = weight_init.value("method", "uniform");
+                    network.weight_init.range = weight_init.value("range", std::vector<double>{-1.0, 1.0});
+                } else {
+                    // Default values
+                    network.weight_init.method = "uniform";
+                    network.weight_init.range = {-1.0, 1.0};
+                }
             }
 
             // Parse training configuration
@@ -103,6 +120,8 @@ public:
         config_json["network"]["layers"] = network.layers;
         config_json["network"]["learning_rate"] = network.learning_rate;
         config_json["network"]["activation"] = network.activation;
+        config_json["network"]["weight_init"]["method"] = network.weight_init.method;
+        config_json["network"]["weight_init"]["range"] = network.weight_init.range;
 
         // Training configuration
         config_json["training"]["epochs"] = training.epochs;
@@ -129,6 +148,8 @@ public:
         network.layers = {784, 128, 64, 10};
         network.learning_rate = 0.01;
         network.activation = "sigmoid";
+        network.weight_init.method = "uniform";
+        network.weight_init.range = {-1.0, 1.0};
 
         // Training defaults
         training.epochs = 5;

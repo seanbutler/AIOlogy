@@ -10,12 +10,19 @@
 #include <string>
 #include <random>
 #include <iomanip>
+#include <cmath>
 
 namespace ANN {
 
+    struct WeightInitConfig {
+        std::string method = "uniform";
+        std::vector<double> range = {-1.0, 1.0};
+    };
+
     class Layer {
     public:
-        Layer(const int input_size, const int output_size)
+        Layer(const int input_size, const int output_size, 
+              const WeightInitConfig& weight_config = WeightInitConfig{})
             : inputs_(input_size, 0.0)
             , outputs_(output_size, 0.0)
             , weights_(input_size * output_size, 0.0) // flat vector to hold weights, think of me as a 2d array, this is where the learning is recorded    
@@ -27,21 +34,57 @@ namespace ANN {
             , activation_derivative(ANN::sigmoid_derivative)   // Default activation derivative
         {
             //
-            // Initialize weights randomly
+            // Initialize weights using specified method
             //
-            randomly_initialize_weights();
+            initialize_weights(weight_config, input_size, output_size);
         }
 
         ~Layer() = default;
         
 
-        void randomly_initialize_weights()
+        void initialize_weights(const WeightInitConfig& config, int input_size, int output_size)
         {
             std::mt19937 rng(std::random_device{}());
-            std::uniform_real_distribution<double> dist(-1.0, 1.0); // random weights between -1 and 1
-            // std::normal_distribution<double> norm_dist(-1.0, 1.0); // small random weights with normal distribution
-            for(auto& w : weights_) {
-                w = dist(rng);
+            
+            if (config.method == "uniform") {
+                double min_val = config.range[0];
+                double max_val = config.range[1];
+                std::uniform_real_distribution<double> dist(min_val, max_val);
+                for(auto& w : weights_) {
+                    w = dist(rng);
+                }
+            }
+            else if (config.method == "normal") {
+                // Use range as [mean, std_dev]
+                double mean = config.range.size() > 0 ? config.range[0] : 0.0;
+                double std_dev = config.range.size() > 1 ? config.range[1] : 1.0;
+                std::normal_distribution<double> dist(mean, std_dev);
+                for(auto& w : weights_) {
+                    w = dist(rng);
+                }
+            }
+            else if (config.method == "xavier") {
+                // Xavier/Glorot initialization: weights ~ U(-sqrt(6/(fan_in + fan_out)), sqrt(6/(fan_in + fan_out)))
+                double limit = std::sqrt(6.0 / (input_size + output_size));
+                std::uniform_real_distribution<double> dist(-limit, limit);
+                for(auto& w : weights_) {
+                    w = dist(rng);
+                }
+            }
+            else if (config.method == "he") {
+                // He initialization: weights ~ N(0, sqrt(2/fan_in))
+                double std_dev = std::sqrt(2.0 / input_size);
+                std::normal_distribution<double> dist(0.0, std_dev);
+                for(auto& w : weights_) {
+                    w = dist(rng);
+                }
+            }
+            else {
+                // Default to uniform if method not recognized
+                std::uniform_real_distribution<double> dist(config.range[0], config.range[1]);
+                for(auto& w : weights_) {
+                    w = dist(rng);
+                }
             }
         }
 
@@ -71,8 +114,7 @@ namespace ANN {
             return outputs_;
         }
 
-        std::vector<double> backward(const std::vector<double>& input, 
-                                        const std::vector<double>& loss_gradients)
+        std::vector<double> backward(const std::vector<double>& loss_gradients)
         {
             // A. Compute activation function derivatives using the stored pre-activation values
             std::vector<double> activation_gradients(outputs_.size());

@@ -16,14 +16,16 @@ namespace ANN {
 
     class Network {
         public:
-            Network(const std::vector<int>&layer_sizes = {784, 128, 64, 10}, double lr = 0.01)
-                : input_layer(layer_sizes[0], layer_sizes[1]),
-                  output_layer(layer_sizes[layer_sizes.size()-2], layer_sizes[layer_sizes.size()-1]),
+            Network(const std::vector<int>&layer_sizes = {784, 128, 64, 10}, 
+                    double lr = 0.01, 
+                    const WeightInitConfig& weight_config = WeightInitConfig{})
+                : input_layer(layer_sizes[0], layer_sizes[1], weight_config),
+                  output_layer(layer_sizes[layer_sizes.size()-2], layer_sizes[layer_sizes.size()-1], weight_config),
                   learning_rate(lr)
             {
                 // Create hidden layers (if any)
                 for(auto i = 1; i < layer_sizes.size() - 2; i++) {
-                    layers.emplace_back(Layer(layer_sizes[i], layer_sizes[i+1]));
+                    layers.emplace_back(Layer(layer_sizes[i], layer_sizes[i+1], weight_config));
                 }
 
                 // Set up layer connectivity
@@ -104,19 +106,19 @@ namespace ANN {
                 }
                 
                 // Start backpropagation from output layer
-                std::vector<double> gradients = output_layer.backward(output_layer.inputs_, loss_gradients);
+                std::vector<double> gradients = output_layer.backward(loss_gradients);
                 
                 // Propagate backwards through hidden layers
                 for (size_t i = layers.size(); i > 0; --i) {
-                    gradients = layers[i-1].backward(layers[i-1].inputs_, gradients);
+                    gradients = layers[i-1].backward(gradients);
                 }
                 
                 // Finally propagate to input layer (though input layer gradients aren't used)
                 if (!layers.empty()) {
-                    input_layer.backward(input_layer.inputs_, gradients);
+                    input_layer.backward(gradients);
                 } else {
                     // Direct connection case
-                    input_layer.backward(input_layer.inputs_, gradients);
+                    input_layer.backward(gradients);
                 }
 
                 // Update Weights and Biases for all layers
