@@ -35,6 +35,12 @@ public:
         bool normalize;
     } data;
 
+    // Output configuration
+    struct OutputConfig {
+        bool save_plots;
+        std::string loss_file;
+    } output;
+
     // Constructor
     Config(const std::string& config_file = "config.json") {
         load_from_file(config_file);
@@ -76,6 +82,13 @@ public:
                 data.normalize = data_config.value("normalize", true);
             }
 
+            // Parse output configuration
+            if (config_json.contains("output")) {
+                auto output_config = config_json["output"];
+                output.save_plots = output_config.value("save_plots", true);
+                output.loss_file = output_config.value("loss_file", "training_loss.csv");
+            }
+
         } catch (const std::exception& e) {
             std::cerr << "Error loading config: " << e.what() << std::endl;
             load_defaults();
@@ -102,6 +115,10 @@ public:
         config_json["data"]["image_size"] = data.image_size;
         config_json["data"]["normalize"] = data.normalize;
 
+        // Output configuration
+        config_json["output"]["save_plots"] = output.save_plots;
+        config_json["output"]["loss_file"] = output.loss_file;
+
         std::ofstream file(config_file);
         file << config_json.dump(2);  // Pretty print with 2-space indentation
     }
@@ -123,6 +140,10 @@ public:
         data.test_path = "./data/mnist_images/test/";
         data.image_size = {28, 28};
         data.normalize = true;
+
+        // Output defaults
+        output.save_plots = true;
+        output.loss_file = "training_loss.csv";
     }
 
     // Print current configuration

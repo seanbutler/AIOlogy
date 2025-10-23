@@ -50,7 +50,7 @@ namespace ANN {
                 layers.clear();
             };
 
-            void train(const std::vector<double>& input_data, const int label)
+            double train(const std::vector<double>& input_data, const int label)
             {
                 // Input validation
                 if (input_data.size() != input_layer.inputs_.size()) {
@@ -147,6 +147,7 @@ namespace ANN {
                     output_layer.biases_[i] -= learning_rate * output_layer.bias_gradients_[i];
                 }
 
+                return loss;  // Return the calculated loss for this training sample
             }
 
 

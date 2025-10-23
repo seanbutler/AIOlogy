@@ -7,6 +7,7 @@
 #include <execution>
 #include <atomic>
 #include <chrono>
+#include <fstream>
 
 
 #include "libs/activations/activations.h"
@@ -19,12 +20,11 @@
 #include "version.h"
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
+
     std::cout << "DigitRecognition v" << Version::VERSION_STRING << std::endl;
     std::cout << "Built: " << Version::BUILD_DATE << std::endl;
     std::cout << "Git: " << Version::GIT_COMMIT << std::endl << std::endl;
     
-    std::cout << " Time " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl << std::endl;
-
     // Load configuration from config.json
     ANN::Config config;
     if (!config.validate()) {
@@ -36,6 +36,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     config.print();
     std::cout << std::endl;
 
+    std::cout << " Time " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl << std::endl;
+
     // Create network from configuration
     ANN::Network network(config.network.layers, config.network.learning_rate);
     ANN::TrainingSet training_set;
@@ -45,7 +47,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     //
     
     std::cout << " Constructing Training Sets " << std::endl;
-
 
     for (const auto& entry : std::filesystem::directory_iterator(config.data.train_path)) {
         if (entry.is_regular_file()) {
@@ -92,6 +93,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     // Train for multiple epochs
     std::cout << "Training for " << config.training.epochs << " epochs on " << instances.size() << " samples..." << std::endl;
     
+    // Open loss tracking file if configured
+    std::ofstream loss_file;
+    if (config.output.save_plots) {
+        loss_file.open(config.output.loss_file);
+        loss_file << "epoch,total_loss,avg_loss,samples\n";  // CSV header
+        std::cout << "Loss tracking enabled - saving to: " << config.output.loss_file << std::endl;
+    }
+    
     for (int epoch = 0; epoch < config.training.epochs; ++epoch) {
         std::cout << "Epoch " << (epoch + 1) << "/" << config.training.epochs << ": ";
 
@@ -99,11 +108,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
             std::shuffle(instances.begin(), instances.end(), g);
         }
         
-        int samples_processed = 0;                
+        int samples_processed = 0;
+        double total_loss = 0.0;  // Track total loss for this epoch
+        
         for (const auto & instance : instances) {
-            network.train(instance.input_data, instance.label);
+            double sample_loss = network.train(instance.input_data, instance.label);
+            total_loss += sample_loss;  // Accumulate loss
             samples_processed++;
-            std::cout << "  Working " << samples_processed << " samples     \r";
+            
+            // Show progress every 100 samples
+            if (samples_processed % 100 == 0) {
+                std::cout << "  Working " << samples_processed << " samples     \r";
+            }
         }
         
         // std::atomic<int> samples_processed{0};
@@ -114,7 +130,30 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         //             samples_processed.fetch_add(1);
         //       });
 
-        std::cout << "  Completed " << samples_processed << " samples     \n";
+        // Calculate loss statistics for this epoch
+        double avg_loss = total_loss / samples_processed;
+        
+        std::cout << "  Completed " << samples_processed << " samples"
+                  << " | Total Loss: " << std::fixed << std::setprecision(4) << total_loss
+                  << " | Avg Loss: " << std::fixed << std::setprecision(6) << avg_loss << std::endl;
+
+        // Save loss data to CSV file
+        if (config.output.save_plots && loss_file.is_open()) {
+            loss_file << (epoch + 1) << "," << total_loss << "," << avg_loss << "," << samples_processed << "\n";
+            loss_file.flush();  // Ensure data is written immediately
+        }
+
+        //
+        // Output Loss Per Epoch
+        //
+        // double avg_loss = total_loss / samples_processed;
+        // loss_file << epoch << "," << total_loss << ", " << avg_loss << "," << accuracy << "\n";
+    }
+    
+    // Close loss file
+    if (loss_file.is_open()) {
+        loss_file.close();
+        std::cout << "Loss data saved to: " << config.output.loss_file << std::endl;
     }
 
     std::cout << "Training completed!\n";
@@ -144,19 +183,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
 
                 count++;                
                 if ( predicted == label ) {
-                    std::cout << " correct" << std::endl;
+                    std::cout << " correct\r";
                     correct++;
                 } else {
-                    std::cout << " incorrect" << std::endl;
+                    std::cout << " incorrect\r";
                 }
-                
             }
         }
     }
+    std::cout << std::endl;
 
     std::cout << " Time " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl;
 
-    
     // Final accuracy summary
     std::cout << "\n=== FINAL RESULTS ===\n";
     std::cout << "Total tested: " << count << " images\n";

@@ -1,18 +1,26 @@
 {
   "network": {
-    "layers": [784, 128, 64, 10],
-    "learning_rate": 0.01,
-    "activation": "sigmoid"
+    "layers": [784, 128, 64, 32, 10],
+    "learning_rate": 0.001,
+    "activation": "relu"
   },
+
   "training": {
     "epochs": 5,
     "shuffle": true,
     "data_path": "./data/mnist_images/"
   },
+
   "data": {
     "train_path": "./data/mnist_images/train/",
     "test_path": "./data/mnist_images/test/",
     "image_size": [28, 28],
     "normalize": true
+  },
+
+  "output": {
+    "save_plots": true,
+    "loss_file": "training_loss.csv"
   }
+
 }

@@ -39,6 +39,7 @@ namespace ANN {
         {
             std::mt19937 rng(std::random_device{}());
             std::uniform_real_distribution<double> dist(-1.0, 1.0); // random weights between -1 and 1
+            // std::normal_distribution<double> norm_dist(-1.0, 1.0); // small random weights with normal distribution
             for(auto& w : weights_) {
                 w = dist(rng);
             }
