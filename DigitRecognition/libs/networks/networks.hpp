@@ -53,14 +53,12 @@ namespace ANN {
             void train(const std::vector<double>& input_data, const int label)
             {
                 // Input validation
-                if (input_data.size() != input_layer.outputs_.size()) {
+                if (input_data.size() != input_layer.inputs_.size()) {
                     throw std::runtime_error("Input size mismatch: expected " + 
-                        std::to_string(input_layer.outputs_.size()) + ", got " + 
+                        std::to_string(input_layer.inputs_.size()) + ", got " + 
                         std::to_string(input_data.size()));
                 }
                 
-                std::cout << "Training with input size: " << input_data.size() << " and label: " << label ;
-
                 // Set input layer data
                 input_layer.inputs_ = input_data;
 
@@ -97,8 +95,6 @@ namespace ANN {
                     double diff = output_layer.outputs_[i] - target[i];
                     loss += diff * diff; // Mean Squared Error
                 }
-
-                std::cout << " loss: " << loss << "\r";
 
                 // Backward Pass - Calculate loss gradients for output layer
                 std::vector<double> loss_gradients(output_layer.outputs_.size());
@@ -157,9 +153,9 @@ namespace ANN {
 
             std::vector<double> predict_probabilities(const std::vector<double>& input_data) {
                 // Input validation
-                if (input_data.size() != input_layer.outputs_.size()) {
+                if (input_data.size() != input_layer.inputs_.size()) {
                     throw std::runtime_error("Input size mismatch: expected " + 
-                        std::to_string(input_layer.outputs_.size()) + ", got " + 
+                        std::to_string(input_layer.inputs_.size()) + ", got " + 
                         std::to_string(input_data.size()));
                 }
                 

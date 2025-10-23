@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <string>
 #include <filesystem>
@@ -22,8 +21,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     std::cout << "Built: " << Version::BUILD_DATE << std::endl;
     std::cout << "Git: " << Version::GIT_COMMIT << std::endl << std::endl;
     
+    std::cout << " Time " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl;
+
     // Create a larger network with better learning rate
-    ANN::Network network({784, 64, 64, 10}, 0.01);
+    ANN::Network network({784, 256, 128, 64, 10}, 0.01);    // TODO parameterise these so data driven from json config
     ANN::TrainingSet training_set;
 
     //
@@ -50,7 +51,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         }
     }
 
-
     std::cout << "\nTraining set constructed from data, size " << training_set.get_instances().size() << std::endl;
 
     // // Check data distribution
@@ -66,18 +66,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     // std::cout << std::endl;
 
     std::cout << "Training network..." << std::endl;
-    
+    std::cout << " Time " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl;
+
     // Shuffle the training data to prevent catastrophic forgetting
     auto instances = training_set.get_instances();
     std::random_device rd;
     std::mt19937 g(rd());
     
     // Train for multiple epochs
-    const int epochs = 3;
+    const int epochs = 10;
     std::cout << "Training for " << epochs << " epochs on " << instances.size() << " samples..." << std::endl;
     
     for (int epoch = 0; epoch < epochs; ++epoch) {
-        std::cout << "Epoch " << (epoch + 1) << "/" << epochs << ": ";
+        std::cout << "Epoch " << (epoch + 1) << "/" << epochs << ": " << std::endl;
 
         std::shuffle(instances.begin(), instances.end(), g);
         
@@ -85,6 +86,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         for (const auto & instance : instances) {
             network.train(instance.input_data, instance.label);
             samples_processed++;
+            std::cout << "  Working " << samples_processed << " samples     \r";
         }
         
         // std::atomic<int> samples_processed{0};
@@ -95,12 +97,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         //             samples_processed.fetch_add(1);
         //       });
 
-        std::cout << std::endl << "  Completed " << samples_processed << " samples\n";
+        std::cout << "  Completed " << samples_processed << " samples     \n";
     }
+
     std::cout << "Training completed!\n";
 
+    std::cout << " Time " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl;
+
     std::cout << "\n\nTesting network on test data..." << std::endl;
-    
+
     int count = 0;
     int correct = 0;
     for (const auto& entry : std::filesystem::directory_iterator("./data/mnist_images/test/")) {
@@ -122,15 +127,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
 
                 count++;                
                 if ( predicted == label ) {
-                    std::cout << " ✓" << std::endl;
+                    std::cout << " correct" << std::endl;
                     correct++;
                 } else {
-                    std::cout << " ✗" << std::endl;
+                    std::cout << " incorrect" << std::endl;
                 }
                 
             }
         }
     }
+
+    std::cout << " Time " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl;
+
     
     // Final accuracy summary
     std::cout << "\n=== FINAL RESULTS ===\n";

@@ -10,7 +10,6 @@ namespace ANN {
         std::vector<double> input_data;
         int label;
         std::string filename;
-
     };
 
 
