@@ -8,12 +8,13 @@ A C++ neural network implementation for (in the first case) handwritten digit re
 
 ## Overview
 
-This project implements a **from-scratch neural network** in C++ designed to recognize handwritten digits (0-9). The implementation focuses on educational clarity while maintaining performance, featuring:
+This project implements a **from-scratch neural network** in C++ setup to be trained on the MNIST image data and then recognize handwritten digits (0-9). The implementation focuses on educational clarity while using c++ to afford some  performance, featuring:
 
 - **Custom Neural Network Layers** - Fully connected layers with configurable activation functions
-- **Activation Functions Library** - Sigmoid, ReLU, and Softmax implementations
+- **Activation Functions Library** - Sigmoid, ReLU implementations
+- **JSON Configuration System** - Easy experimentation with network architectures and training parameters
 - **MNIST Dataset Integration** - Automatic download and preprocessing of training data
-- **Modular Architecture** - Clean separation between layers, activations, and network management
+- **Modular Architecture** - Clean separation between layers, activations, configuration, and network management
 - **Comprehensive Testing** - Unit tests for all core components
 
 
@@ -34,8 +35,11 @@ DigitRecognition/
 │   └── mnist_images/        # Processed MNIST images (PNG format)
 ├── libs/                    # Core neural network libraries
 │   ├── activations/         # Activation functions (sigmoid, ReLU, softmax)
+│   ├── config/              # JSON configuration management
+│   ├── images/              # Image loading and preprocessing
 │   ├── layers/              # Neural network layer implementation
-│   └── networks/            # Network management and training
+│   ├── networks/            # Network management and training
+│   └── training/            # Training dataset management
 ├── scripts/                 # Build and utility scripts
 │   ├── build.ps1           # Build the entire project
 │   ├── run.ps1             # Execute the main application
@@ -44,6 +48,7 @@ DigitRecognition/
 ├── .gitignore              # Git ignore patterns
 ├── CHANGELOG.md            # Detailed version history
 ├── CMakeLists.txt          # Main CMake configuration with version
+├── config.json             # Neural network configuration file
 ├── main.cpp                # Main application entry point
 ├── README.md               # Project overview and documentation
 ├── version.h               # Generated version header (auto-created)
@@ -58,6 +63,11 @@ DigitRecognition/
 - **CMake** 3.16 or higher
 - **Python** 3.7+ (for MNIST data download)
 - **PowerShell** (for build scripts on Windows)
+
+### Dependencies
+
+- **nlohmann/json** - JSON parsing for configuration (automatically downloaded via CMake)
+- **SDL2** - Image loading support (automatically downloaded via CMake)
 
 ### 1. Build the Project
 
@@ -92,23 +102,147 @@ python .\scripts\get_mnist.py
 
 **What this does:**
 - Executes all unit tests using CTest
-- Tests activation functions (sigmoid, ReLU, softmax)
+- Tests activation functions (sigmoid, ReLU)
 - Validates neural network layer mathematics
 - Verifies forward propagation calculations
 - Shows detailed test results and coverage
 
-### 4. Run the Application
+### 4. Configure Your Network (Optional)
+
+Edit `config.json` to customize your neural network:
+
+```json
+{
+  "network": {
+    "layers": [784, 64, 32, 10],
+    "learning_rate": 0.001,
+    "activation": "relu"
+  },
+  "training": {
+    "epochs": 2,
+    "shuffle": true
+  }
+}
+```
+
+**Configuration Options:**
+- **layers**: Network architecture (input → hidden → output)
+- **learning_rate**: How fast the network learns (0.001 - 0.01 typical)
+- **epochs**: Number of training iterations
+- **activation**: Activation function ("sigmoid" or "relu")
+
+### 5. Run the Application
 
 ```powershell
 .\scripts\run.ps1
 ```
 
 **What this does:**
+- Loads configuration from `config.json`
+- Displays network architecture and training parameters
 - Executes the main digit recognition program
 - Demonstrates neural network functionality
 - Shows sample predictions and accuracy metrics
 
+## Configuration System
+
+The project uses a JSON-based configuration system for easy experimentation:
+
+### Network Configuration
+```json
+"network": {
+  "layers": [784, 128, 64, 10],     // Network architecture
+  "learning_rate": 0.01,            // Learning rate for training
+  "activation": "sigmoid"           // Activation function
+}
+```
+
+### Training Configuration
+```json
+"training": {
+  "epochs": 5,                      // Number of training epochs
+  "shuffle": true                   // Shuffle training data
+}
+```
+
+### Data Configuration
+```json
+"data": {
+  "train_path": "./data/mnist_images/train/",
+  "test_path": "./data/mnist_images/test/",
+  "image_size": [28, 28],
+  "normalize": true
+}
+```
+
+**Benefits:**
+- **Easy Experimentation** - Try different architectures without recompiling
+- **Reproducible Results** - Save exact configurations used for experiments
+- **Parameter Validation** - Automatic validation of configuration values
+
+## Complete Example
+
+Here's how all the components work together:
+
+```cpp
+#include "libs/config/config.hpp"
+#include "libs/networks/networks.hpp"
+#include "libs/training/training.hpp"
+#include "libs/images/images.hpp"
+
+int main() {
+    // 1. Load configuration
+    ANN::Config config("config.json");
+    config.print();  // Display loaded settings
+    
+    // 2. Create network from config
+    ANN::Network network(config.network.layers, config.network.learning_rate);
+    
+    // 3. Load training data
+    ANN::TrainingSet training_set;
+    for (const auto& entry : std::filesystem::directory_iterator(config.data.train_path)) {
+        if (entry.path().extension() == ".png") {
+            std::string filename = entry.path().filename().string();
+            int label = std::stoi(filename.substr(0, filename.find('_')));
+            
+            std::vector<double> image_data = ANN::load_image(entry.path().string());
+            training_set.add_instance({image_data, label, filename});
+        }
+    }
+    
+    // 4. Train the network
+    auto instances = training_set.get_instances();
+    for (int epoch = 0; epoch < config.training.epochs; ++epoch) {
+        for (const auto& instance : instances) {
+            network.train(instance.input_data, instance.label);
+        }
+    }
+    
+    // 5. Test the network
+    std::vector<double> test_image = ANN::load_image("test_image.png");
+    int prediction = network.predict_label(test_image);
+    std::cout << "Predicted digit: " << prediction << std::endl;
+    
+    return 0;
+}
+```
+
 ## Core Components
+
+### Configuration Management (`libs/config/`)
+
+JSON-based configuration system featuring:
+
+- **Structured Configuration** - Organized sections for network, training, and data
+- **Automatic Parsing** - Load settings from `config.json` with fallback defaults
+- **Validation** - Verify configuration values are valid before training
+- **Easy Experimentation** - Change network architecture without recompilation
+
+```cpp
+// Example usage:
+ANN::Config config("config.json");
+ANN::Network network(config.network.layers, config.network.learning_rate);
+```
 
 ### Neural Network Layers (`libs/layers/`)
 
@@ -132,76 +266,100 @@ Mathematical functions for non-linearity:
 
 - **Sigmoid** - Smooth activation for binary classification
 - **ReLU** - Fast activation for hidden layers  
-- **Softmax** - Probability distribution for output layers
-- **Derivatives** - For backpropagation (future implementation)
+
+
+### Image Processing (`libs/images/`)
+
+MNIST image loading and preprocessing:
+
+- **PNG Image Loading** - Read MNIST dataset converted to PNG format
+- **Data Normalization** - Scale pixel values for optimal training
+- **Format Conversion** - Convert image data to neural network input format
+
+```cpp
+// Example usage:
+std::vector<double> image_data = ANN::load_image("data/mnist_images/train/5/5_12345.png");
+// Returns normalized pixel values as vector of doubles (784 elements for 28x28 image)
+```
+
+### Training Management (`libs/training/`)
+
+Dataset management and training utilities:
+
+- **Training Set Organization** - Manage labeled training instances
+- **Data Validation** - Ensure proper dataset structure
+- **Batch Processing** - Efficient handling of training data
+
+```cpp
+// Example usage:
+ANN::TrainingSet training_set;
+training_set.add_instance({image_data, 5, "5_12345.png"});  // image, label, filename
+auto instances = training_set.get_instances();
+std::cout << "Training set size: " << instances.size() << std::endl;
+```
 
 ### Network Management (`libs/networks/`)
 
 High-level network construction and training:
 
-- **Network Builder** - Easy network architecture definition
-- **Layer Management** - Add, configure, and connect layers
-- **Training Pipeline** - Forward/backward pass coordination
+- **Configuration-Driven Architecture** - Build networks from JSON configuration
+- **Training Pipeline** - Forward/backward pass coordination with loss calculation
+- **Layer Management** - Add, configure, and connect layers automatically
+- **Prediction Interface** - Easy-to-use prediction methods for inference
+
+```cpp
+// Example usage:
+ANN::Config config("config.json");
+ANN::Network network(config.network.layers, config.network.learning_rate);
+
+// Training
+network.train(image_data, label);
+
+// Prediction
+int predicted_label = network.predict_label(image_data);
+std::vector<double> probabilities = network.predict_probabilities(image_data);
+```
 
 ## Educational Features
 
 This project is designed for learning neural networks:
 
-### 1. **Transparent Implementation**
 - No hidden complexity or black-box libraries
-- Clear mathematical operations at each step
-- Extensive comments explaining the "why" behind code
-
-### 2. **Comprehensive Testing**
 - Unit tests demonstrate expected behavior
 - Test cases show mathematical correctness
 - Easy to experiment with different inputs
 
-### 3. **Modular Design**
-- Each component can be studied independently
-- Clean interfaces between modules
-- Easy to extend with new activation functions or layer types
-
-### 4. **Real Dataset**
 - Works with actual MNIST handwritten digits
 - Visualizable training data
 - Measurable performance metrics
 
 ## Development Workflow
 
-### Making Changes
-
-1. **Modify Code** - Edit source files in `libs/`
+1. **Configure** - Edit `config.json` to set network architecture and training parameters
 2. **Build** - Run `.\scripts\build.ps1` to compile changes
 3. **Test** - Run `.\scripts\test.ps1` to validate functionality
-4. **Run** - Execute `.\scripts\run.ps1` to see results
+4. **Train** - Execute `.\scripts\run.ps1` to train and test the network
+5. **Iterate** - Modify configuration and repeat for experimentation
 
-### Adding New Features
-
-- **New Activation Function** - Add to `libs/activations/`
-- **New Layer Type** - Extend `libs/layers/`
-- **Network Improvements** - Modify `libs/networks/`
-
-### Debugging
-
-- **Build Errors** - Check CMake configuration and C++23 support
-- **Test Failures** - Review mathematical implementations
-- **Runtime Issues** - Verify MNIST data download completed
 
 ## Technical Details
 
+
 ### Build System
 
-- **CMake** for cross-platform building
+- **CMake** for cross-platform building with automatic dependency management
+- **FetchContent** integration for nlohmann/json and SDL2 libraries
 - **Modular Libraries** for clean dependency management
 - **C++23 Standard** for modern language features
 - **MSVC/GCC Support** with appropriate compiler flags
 
-### Performance Considerations
+
+### Performance Considerations (Further Improvements Possible!)
 
 - **Efficient Memory Layout** - Flat vectors for weight storage
 - **Smart Pointers** - Automatic memory management
 - **Minimal Copying** - Move semantics where appropriate
+
 
 ### Testing Framework
 
@@ -209,19 +367,20 @@ This project is designed for learning neural networks:
 - **Assertion-Based Testing** - Clear pass/fail criteria
 - **Verbose Output** - Detailed information for debugging
 
+
 ## Future Enhancements
 
-Potential areas for expansion:
-
-- **Backpropagation** - Implement learning algorithms
+- **Loss Curve Plotting** - CSV output for training visualization
 - **Convolutional Layers** - Add CNN support for better image recognition
 - **GPU Acceleration** - CUDA or OpenCL integration
-- **Model Serialization** - Save/load trained networks
+- **Model Serialization** - Save/load trained networks to/from JSON
 - **Performance Optimization** - SIMD instructions, multithreading
+- **Additional Activation Functions** - Tanh, Leaky ReLU, Swish implementations
+
 
 ## Contributing
 
-This is an educational project focused on understanding neural networks from first principles. When contributing:
+You are welcome to contribute. Just reach out. Meanwhile, lets...
 
 1. Maintain code clarity over performance optimization
 2. Include comprehensive comments explaining mathematical concepts
@@ -230,6 +389,4 @@ This is an educational project focused on understanding neural networks from fir
 
 ---
 
-**Happy Learning!** 🧠✨
-
-This implementation provides a solid foundation for understanding how neural networks work at the mathematical and implementation level.
+Share & Enjoy!
