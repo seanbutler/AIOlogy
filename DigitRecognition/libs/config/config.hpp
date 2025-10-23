@@ -1,0 +1,172 @@
+#pragma once
+
+#include <nlohmann/json.hpp>
+#include <fstream>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <stdexcept>
+
+using json = nlohmann::json;
+
+namespace ANN {
+
+class Config {
+public:
+    // Network configuration
+    struct NetworkConfig {
+        std::vector<int> layers;
+        double learning_rate;
+        std::string activation;
+    } network;
+
+    // Training configuration
+    struct TrainingConfig {
+        int epochs;
+        bool shuffle;
+        std::string data_path;
+    } training;
+
+    // Data configuration
+    struct DataConfig {
+        std::string train_path;
+        std::string test_path;
+        std::vector<int> image_size;
+        bool normalize;
+    } data;
+
+    // Constructor
+    Config(const std::string& config_file = "config.json") {
+        load_from_file(config_file);
+    }
+
+    // Load configuration from JSON file
+    void load_from_file(const std::string& config_file) {
+        try {
+            std::ifstream file(config_file);
+            if (!file.is_open()) {
+                throw std::runtime_error("Could not open config file: " + config_file);
+            }
+
+            json config_json;
+            file >> config_json;
+
+            // Parse network configuration
+            if (config_json.contains("network")) {
+                auto net = config_json["network"];
+                network.layers = net.value("layers", std::vector<int>{784, 128, 64, 10});
+                network.learning_rate = net.value("learning_rate", 0.01);
+                network.activation = net.value("activation", "sigmoid");
+            }
+
+            // Parse training configuration
+            if (config_json.contains("training")) {
+                auto train = config_json["training"];
+                training.epochs = train.value("epochs", 5);
+                training.shuffle = train.value("shuffle", true);
+                training.data_path = train.value("data_path", "./data/mnist_images/");
+            }
+
+            // Parse data configuration
+            if (config_json.contains("data")) {
+                auto data_config = config_json["data"];
+                data.train_path = data_config.value("train_path", "./data/mnist_images/train/");
+                data.test_path = data_config.value("test_path", "./data/mnist_images/test/");
+                data.image_size = data_config.value("image_size", std::vector<int>{28, 28});
+                data.normalize = data_config.value("normalize", true);
+            }
+
+        } catch (const std::exception& e) {
+            std::cerr << "Error loading config: " << e.what() << std::endl;
+            load_defaults();
+        }
+    }
+
+    // Save current configuration to JSON file
+    void save_to_file(const std::string& config_file) const {
+        json config_json;
+
+        // Network configuration
+        config_json["network"]["layers"] = network.layers;
+        config_json["network"]["learning_rate"] = network.learning_rate;
+        config_json["network"]["activation"] = network.activation;
+
+        // Training configuration
+        config_json["training"]["epochs"] = training.epochs;
+        config_json["training"]["shuffle"] = training.shuffle;
+        config_json["training"]["data_path"] = training.data_path;
+
+        // Data configuration
+        config_json["data"]["train_path"] = data.train_path;
+        config_json["data"]["test_path"] = data.test_path;
+        config_json["data"]["image_size"] = data.image_size;
+        config_json["data"]["normalize"] = data.normalize;
+
+        std::ofstream file(config_file);
+        file << config_json.dump(2);  // Pretty print with 2-space indentation
+    }
+
+    // Load default configuration
+    void load_defaults() {
+        // Network defaults
+        network.layers = {784, 128, 64, 10};
+        network.learning_rate = 0.01;
+        network.activation = "sigmoid";
+
+        // Training defaults
+        training.epochs = 5;
+        training.shuffle = true;
+        training.data_path = "./data/mnist_images/";
+
+        // Data defaults
+        data.train_path = "./data/mnist_images/train/";
+        data.test_path = "./data/mnist_images/test/";
+        data.image_size = {28, 28};
+        data.normalize = true;
+    }
+
+    // Print current configuration
+    void print() const {
+        std::cout << "=== CONFIGURATION ===" << std::endl;
+        std::cout << "Network:" << std::endl;
+        std::cout << "  Layers: [";
+        for (size_t i = 0; i < network.layers.size(); ++i) {
+            std::cout << network.layers[i];
+            if (i < network.layers.size() - 1) std::cout << ", ";
+        }
+        std::cout << "]" << std::endl;
+        std::cout << "  Learning Rate: " << network.learning_rate << std::endl;
+        std::cout << "  Activation: " << network.activation << std::endl;
+
+        std::cout << "Training:" << std::endl;
+        std::cout << "  Epochs: " << training.epochs << std::endl;
+        std::cout << "  Shuffle: " << (training.shuffle ? "true" : "false") << std::endl;
+        std::cout << "  Data Path: " << training.data_path << std::endl;
+
+        std::cout << "Data:" << std::endl;
+        std::cout << "  Train Path: " << data.train_path << std::endl;
+        std::cout << "  Test Path: " << data.test_path << std::endl;
+        std::cout << "  Image Size: " << data.image_size[0] << "x" << data.image_size[1] << std::endl;
+        std::cout << "  Normalize: " << (data.normalize ? "true" : "false") << std::endl;
+        std::cout << "=====================" << std::endl;
+    }
+
+    // Validation methods
+    bool validate() const {
+        if (network.layers.size() < 2) {
+            std::cerr << "Error: Network must have at least 2 layers" << std::endl;
+            return false;
+        }
+        if (network.learning_rate <= 0.0 || network.learning_rate > 1.0) {
+            std::cerr << "Error: Learning rate must be between 0 and 1" << std::endl;
+            return false;
+        }
+        if (training.epochs <= 0) {
+            std::cerr << "Error: Epochs must be positive" << std::endl;
+            return false;
+        }
+        return true;
+    }
+};
+
+} // namespace ANN

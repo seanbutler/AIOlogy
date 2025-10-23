@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <execution>
 #include <atomic>
+#include <chrono>
 
 
 #include "libs/activations/activations.h"
@@ -13,6 +14,7 @@
 #include "libs/images/images.hpp"
 #include "libs/networks/networks.hpp"
 #include "libs/training/training.hpp"
+#include "libs/config/config.hpp"
 
 #include "version.h"
 
@@ -21,17 +23,31 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     std::cout << "Built: " << Version::BUILD_DATE << std::endl;
     std::cout << "Git: " << Version::GIT_COMMIT << std::endl << std::endl;
     
-    std::cout << " Time " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl;
+    std::cout << " Time " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl << std::endl;
 
-    // Create a larger network with better learning rate
-    ANN::Network network({784, 256, 128, 64, 10}, 0.01);    // TODO parameterise these so data driven from json config
+    // Load configuration from config.json
+    ANN::Config config;
+    if (!config.validate()) {
+        std::cerr << "Invalid configuration, exiting." << std::endl;
+        return 1;
+    }
+    
+    // Print loaded configuration
+    config.print();
+    std::cout << std::endl;
+
+    // Create network from configuration
+    ANN::Network network(config.network.layers, config.network.learning_rate);
     ANN::TrainingSet training_set;
 
     //
     // Load TRAINING data from train directory
     //
     
-    for (const auto& entry : std::filesystem::directory_iterator("./data/mnist_images/train/")) {
+    std::cout << " Constructing Training Sets " << std::endl;
+
+
+    for (const auto& entry : std::filesystem::directory_iterator(config.data.train_path)) {
         if (entry.is_regular_file()) {
             if ( std::filesystem::path(entry).extension() == ".png" ) {
                 
@@ -74,13 +90,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     std::mt19937 g(rd());
     
     // Train for multiple epochs
-    const int epochs = 10;
-    std::cout << "Training for " << epochs << " epochs on " << instances.size() << " samples..." << std::endl;
+    std::cout << "Training for " << config.training.epochs << " epochs on " << instances.size() << " samples..." << std::endl;
     
-    for (int epoch = 0; epoch < epochs; ++epoch) {
-        std::cout << "Epoch " << (epoch + 1) << "/" << epochs << ": " << std::endl;
+    for (int epoch = 0; epoch < config.training.epochs; ++epoch) {
+        std::cout << "Epoch " << (epoch + 1) << "/" << config.training.epochs << ": ";
 
-        std::shuffle(instances.begin(), instances.end(), g);
+        if (config.training.shuffle) {
+            std::shuffle(instances.begin(), instances.end(), g);
+        }
         
         int samples_processed = 0;                
         for (const auto & instance : instances) {
@@ -108,7 +125,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
 
     int count = 0;
     int correct = 0;
-    for (const auto& entry : std::filesystem::directory_iterator("./data/mnist_images/test/")) {
+    for (const auto& entry : std::filesystem::directory_iterator(config.data.test_path)) {
         if (entry.is_regular_file()) {
             if ( std::filesystem::path(entry).extension() == ".png" ) {
                 

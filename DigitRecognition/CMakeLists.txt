@@ -27,12 +27,20 @@ FetchContent_Declare(
     GIT_SHALLOW TRUE
 )
 
+# Fetch nlohmann/json for configuration and data serialization
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.11.3  # Use stable nlohmann/json release
+    GIT_SHALLOW TRUE
+)
+
 # Make SDL2 and SDL2_image available
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "Disable SDL2 installation")
 set(SDL2IMAGE_SAMPLES OFF CACHE BOOL "Build SDL2_image samples")
 set(SDL2IMAGE_TESTS OFF CACHE BOOL "Build SDL2_image tests")
 
-FetchContent_MakeAvailable(SDL2 SDL2_image)
+FetchContent_MakeAvailable(SDL2 SDL2_image nlohmann_json)
 
 # Get current date and git info
 string(TIMESTAMP BUILD_DATE "%Y-%m-%d %H:%M:%S")
@@ -96,6 +104,7 @@ add_subdirectory(libs/activations)
 add_subdirectory(libs/layers)
 add_subdirectory(libs/images)
 add_subdirectory(libs/training)
+add_subdirectory(libs/config)
 
 
 # Link libraries (add any external libraries you need)
@@ -104,6 +113,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     activations
     images
     training
+    config
+    nlohmann_json::nlohmann_json
 )
 
 # Set debugging properties for Visual Studio
