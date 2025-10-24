@@ -61,11 +61,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
 
                 std::vector<double> image_data = ANN::load_image(std::filesystem::path(entry).string());
                 
-                // Normalize pixel values from [0-255] to [0-1] if configured
                 if (config.data.normalize && !image_data.empty()) {
-                    for (auto& pixel : image_data) {
-                        pixel /= 255.0;
-                    }
+                    ANN::normalise_image(image_data, 255);
                 }
 
                 training_set.add_instance({image_data, label, filename});
@@ -138,8 +135,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
             // Show progress every 100 samples for better performance
             if (samples_processed % 100 == 0) {
                 double current_accuracy = (double)correct_predictions / samples_processed * 100.0;
-                std::cout << "  Progress: " << samples_processed << "/" << instances.size() 
-                          << " | Acc: " << std::fixed << std::setprecision(1) << current_accuracy << "%\n";
+                std::cout << " Progress: " << samples_processed << "/" << instances.size() 
+                          << " Acc: " << std::fixed << std::setprecision(1) << current_accuracy << "% \r";
             }
         }
         
@@ -195,6 +192,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
                 int label = std::stoi(filename.substr(0, filename.find('_')));
 
                 std::vector<double> image_data = ANN::load_image(std::filesystem::path(entry).string());
+                
+                if (config.data.normalize && !image_data.empty()) {
+                    ANN::normalise_image(image_data, 255);
+                }
 
                 //
                 // test it 
@@ -206,10 +207,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
 
                 count++;                
                 if ( predicted == label ) {
-                    std::cout << " correct\n";
+                    std::cout << " correct\r";
                     correct++;
                 } else {
-                    std::cout << " incorrect\n";
+                    std::cout << " incorrect\r";
                 }
             }
         }

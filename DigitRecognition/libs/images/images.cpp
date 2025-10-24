@@ -49,6 +49,7 @@ static SDL_Manager& get_sdl_manager() {
 }
 #endif
 
+
 std::vector<double> ANN::load_image(const std::string& filename) {
     // std::cout << "Loading image from: " << filename << std::endl;
 
@@ -119,3 +120,8 @@ std::vector<double> ANN::load_image(const std::string& filename) {
     return pixels;
 }
 
+void ANN::normalise_image(std::vector<double>& image_data, double max_value) {
+    for (auto& pixel : image_data) {
+        pixel /= max_value;
+    }
+}

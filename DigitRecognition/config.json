@@ -1,22 +1,22 @@
 {
   "network": {
-    "layers": [784, 1024, 10],
+    "layers": [784, 512, 10],
     "learning_rate": 0.01,
     "activation": "relu",
     "weight_init": {
       "method": "uniform",
-      "range": [-0.25, 0.25]
+      "range": [-0.15, 0.15]
     }
   },
 
   "training": {
-    "epochs": 3,
+    "epochs": 2,
     "shuffle": true,
     "data_path": "./data/mnist_images/"
   },
 
   "data": {
-    "train_path": "./data/mnist_images/train/",
+    "train_path": "./data/mnist_images/test/",
     "test_path": "./data/mnist_images/test/",
     "image_size": [28, 28],
     "normalize": true
