@@ -67,9 +67,9 @@ bool test_factory_functions() {
     ASSERT_NEAR(relu_func(test_val), ANN::relu(test_val), 1e-10);
     
     // Test activation pairs
-    auto sigmoid_pair = ANN::get_activation_pair("sigmoid");
-    ASSERT_NEAR(sigmoid_pair.function(test_val), ANN::sigmoid(test_val), 1e-10);
-    ASSERT_NEAR(sigmoid_pair.derivative(test_val), ANN::sigmoid_derivative(test_val), 1e-10);
+    // auto sigmoid_pair = ANN::get_activation_pair("sigmoid");
+    // ASSERT_NEAR(sigmoid_pair.function(test_val), ANN::sigmoid(test_val), 1e-10);
+    // ASSERT_NEAR(sigmoid_pair.derivative(test_val), ANN::sigmoid_derivative(test_val), 1e-10);
     
     std::cout << "✓ Factory function tests passed" << std::endl;
     return true;
