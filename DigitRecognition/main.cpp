@@ -74,7 +74,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
                 //         << " file: " << filename 
                 //         << " label: " << label 
                 //         << " size: " << image_data.size() 
-                //         << "\r";
+                //         << "\n";
             }
         }
     }
@@ -113,7 +113,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     }
     
     for (int epoch = 0; epoch < config.training.epochs; ++epoch) {
-        std::cout << "Epoch " << (epoch + 1) << "/" << config.training.epochs << ": ";
+        std::cout << "Epoch " << (epoch + 1) << "/" << config.training.epochs << ": \n";
 
         if (config.training.shuffle) {
             std::shuffle(instances.begin(), instances.end(), g);
@@ -139,7 +139,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
             if (samples_processed % 100 == 0) {
                 double current_accuracy = (double)correct_predictions / samples_processed * 100.0;
                 std::cout << "  Progress: " << samples_processed << "/" << instances.size() 
-                          << " | Acc: " << std::fixed << std::setprecision(1) << current_accuracy << "%\r";
+                          << " | Acc: " << std::fixed << std::setprecision(1) << current_accuracy << "%\n";
             }
         }
         
@@ -206,10 +206,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
 
                 count++;                
                 if ( predicted == label ) {
-                    std::cout << " correct\r";
+                    std::cout << " correct\n";
                     correct++;
                 } else {
-                    std::cout << " incorrect\r";
+                    std::cout << " incorrect\n";
                 }
             }
         }
