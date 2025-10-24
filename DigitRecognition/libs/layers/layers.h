@@ -42,6 +42,7 @@ namespace ANN {
         ~Layer() = default;
         
 
+        // TODO move this to its own util module
         void initialize_weights(const WeightInitConfig& config, int input_size, int output_size)
         {
             std::mt19937 rng(std::random_device{}());

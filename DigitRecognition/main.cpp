@@ -60,6 +60,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
                 int label = std::stoi(filename.substr(0, filename.find('_')));
 
                 std::vector<double> image_data = ANN::load_image(std::filesystem::path(entry).string());
+                
+                // Normalize pixel values from [0-255] to [0-1] if configured
+                if (config.data.normalize && !image_data.empty()) {
+                    for (auto& pixel : image_data) {
+                        pixel /= 255.0;
+                    }
+                }
 
                 training_set.add_instance({image_data, label, filename});
 
