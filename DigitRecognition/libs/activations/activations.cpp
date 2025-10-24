@@ -19,27 +19,6 @@ double relu(double x) {
     return std::max(0.0, x);
 }
 
-// // Vector activation functions
-// std::vector<double> softmax(const std::vector<double>& input) {
-//     std::vector<double> result(input.size());
-    
-//     // Find max value for numerical stability
-//     double max_val = *std::max_element(input.begin(), input.end());
-    
-//     // Calculate exponentials and sum
-//     double sum = 0.0;
-//     for (size_t i = 0; i < input.size(); ++i) {
-//         result[i] = std::exp(input[i] - max_val);
-//         sum += result[i];
-//     }
-    
-//     // Normalize
-//     for (double& val : result) {
-//         val /= sum;
-//     }
-    
-//     return result;
-// }
 
 // Derivative functions
 double sigmoid_derivative(double x) {
@@ -66,16 +45,6 @@ ActivationFunction get_activation(const std::string& name) {
     throw std::invalid_argument("Unknown activation function: " + name);
 }
 
-// // Factory for activation pairs
-// ActivationPair get_activation_pair(const std::string& name) {
-//     if (name == "sigmoid") {
-//         return ActivationPair(sigmoid, sigmoid_derivative, "sigmoid");
-//     } else if (name == "relu") {
-//         return ActivationPair(relu, relu_derivative, "relu");
-//     }
-    
-//     throw std::invalid_argument("Unknown activation pair: " + name);
-// }
 
 // Apply activation function to entire vector
 std::vector<double> apply_activation(const std::vector<double>& input, 
