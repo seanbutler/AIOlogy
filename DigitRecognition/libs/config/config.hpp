@@ -169,6 +169,8 @@ public:
 
     // Print current configuration
     void print() const {
+        // TODO why not just pretty print the json object?
+
         std::cout << "=== CONFIGURATION ===" << std::endl;
         std::cout << "Network:" << std::endl;
         std::cout << "  Layers: [";

@@ -97,6 +97,7 @@ namespace ANN {
                     double diff = output_layer.outputs_[i] - target[i];
                     loss += diff * diff; // Mean Squared Error
                 }
+                loss /= target.size(); // Average the loss over all outputs
 
                 // Backward Pass - Calculate loss gradients for output layer
                 std::vector<double> loss_gradients(output_layer.outputs_.size());

@@ -101,7 +101,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     std::ofstream loss_file;
     if (config.output.save_plots) {
         loss_file.open(config.output.loss_file);
-        loss_file << "epoch,total_loss,avg_loss,samples\n";  // CSV header
+        loss_file << "epoch,total_loss,avg_loss,training_accuracy,samples\n";  // CSV header
         std::cout << "Loss tracking enabled - saving to: " << config.output.loss_file << std::endl;
     }
     
@@ -114,15 +114,25 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         
         int samples_processed = 0;
         double total_loss = 0.0;  // Track total loss for this epoch
+        int correct_predictions = 0;  // Track training accuracy
         
         for (const auto & instance : instances) {
             double sample_loss = network.train(instance.input_data, instance.label);
             total_loss += sample_loss;  // Accumulate loss
-            samples_processed++;
             
-            // Show progress every 100 samples
+            // Calculate accuracy on this sample
+            int predicted_label = network.predict_label(instance.input_data);
+            if (predicted_label == instance.label) {
+                correct_predictions++;
+            }
+            
+            samples_processed++;
+
+            // Show progress every 100 samples for better performance
             if (samples_processed % 100 == 0) {
-                std::cout << "  Working " << samples_processed << " samples     \r";
+                double current_accuracy = (double)correct_predictions / samples_processed * 100.0;
+                std::cout << "  Progress: " << samples_processed << "/" << instances.size() 
+                          << " | Acc: " << std::fixed << std::setprecision(1) << current_accuracy << "%\r";
             }
         }
         
@@ -134,16 +144,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         //             samples_processed.fetch_add(1);
         //       });
 
-        // Calculate loss statistics for this epoch
+        // Calculate statistics for this epoch
         double avg_loss = total_loss / samples_processed;
+        double training_accuracy = (double)correct_predictions / samples_processed * 100.0;
         
-        std::cout << "  Completed " << samples_processed << " samples"
-                  << " | Total Loss: " << std::fixed << std::setprecision(4) << total_loss
-                  << " | Avg Loss: " << std::fixed << std::setprecision(6) << avg_loss << std::endl;
+        std::cout << "  Epoch " << (epoch + 1) << " completed: " << samples_processed << " samples"
+                  << " | Loss: " << std::fixed << std::setprecision(6) << avg_loss
+                  << " | Train Acc: " << std::fixed << std::setprecision(2) << training_accuracy << "%" << std::endl;
 
         // Save loss data to CSV file
         if (config.output.save_plots && loss_file.is_open()) {
-            loss_file << (epoch + 1) << "," << total_loss << "," << avg_loss << "," << samples_processed << "\n";
+            loss_file << (epoch + 1) << "," << total_loss << "," << avg_loss << "," 
+                      << training_accuracy << "," << samples_processed << "\n";
             loss_file.flush();  // Ensure data is written immediately
         }
 
