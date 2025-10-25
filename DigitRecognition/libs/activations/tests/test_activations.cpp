@@ -54,6 +54,26 @@ bool test_relu() {
     return true;
 }
 
+bool test_sigmoid_derivative() {
+    std::cout << "Testing sigmoid derivative..." << std::endl;
+    // At x=0, derivative should be 0.25
+    ASSERT_NEAR(ANN::sigmoid_derivative(0.0), 0.25, 1e-10);
+    // At x=1000, derivative should be near 0
+    ASSERT_NEAR(ANN::sigmoid_derivative(1000.0), 0.0, 1e-10);
+    // At x=-1000, derivative should be near 0
+    ASSERT_NEAR(ANN::sigmoid_derivative(-1000.0), 0.0, 1e-10);
+    std::cout << "✓ Sigmoid derivative tests passed" << std::endl;
+    return true;
+}
+
+bool test_relu_derivative() {
+    std::cout << "Testing ReLU derivative..." << std::endl;
+    ASSERT_NEAR(ANN::relu_derivative(5.0), 1.0, 1e-10);
+    ASSERT_NEAR(ANN::relu_derivative(0.0), 0.0, 1e-10);
+    ASSERT_NEAR(ANN::relu_derivative(-5.0), 0.0, 1e-10);
+    std::cout << "✓ ReLU derivative tests passed" << std::endl;
+    return true;
+}
 
 bool test_factory_functions() {
     std::cout << "Testing factory functions..." << std::endl;
@@ -92,19 +112,34 @@ bool test_vector_operations() {
     return true;
 }
 
+bool test_edge_cases() {
+    std::cout << "Testing edge cases..." << std::endl;
+    double nan = std::numeric_limits<double>::quiet_NaN();
+    double inf = std::numeric_limits<double>::infinity();
+    double ninf = -std::numeric_limits<double>::infinity();
+    // Sigmoid
+    ASSERT_TRUE(std::isnan(ANN::sigmoid(nan)));
+    ASSERT_NEAR(ANN::sigmoid(inf), 1.0, 1e-10);
+    ASSERT_NEAR(ANN::sigmoid(ninf), 0.0, 1e-10);
+    // ReLU
+    ASSERT_TRUE(std::isnan(ANN::relu(nan)));
+    ASSERT_NEAR(ANN::relu(inf), inf, 1e-10);
+    ASSERT_NEAR(ANN::relu(ninf), 0.0, 1e-10);
+    std::cout << "✓ Edge case tests passed" << std::endl;
+    return true;
+}
+
 int main() {
     std::cout << "Running Activations Library Tests" << std::endl;
     std::cout << "==================================" << std::endl;
-    
     bool all_passed = true;
-    
     all_passed &= test_sigmoid();
     all_passed &= test_relu();
-    // all_passed &= test_softmax();
-    // all_passed &= test_derivatives();
+    all_passed &= test_sigmoid_derivative();
+    all_passed &= test_relu_derivative();
+    all_passed &= test_edge_cases();
     all_passed &= test_factory_functions();
     all_passed &= test_vector_operations();
-    
     std::cout << std::endl;
     if (all_passed) {
         std::cout << "🎉 All tests passed!" << std::endl;

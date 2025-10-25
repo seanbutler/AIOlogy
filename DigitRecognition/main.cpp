@@ -17,6 +17,8 @@
 #include "libs/training/training.hpp"
 #include "libs/config/config.hpp"
 
+#include "utils.hpp"
+
 #include "version.h"
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
@@ -24,7 +26,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     std::cout << "DigitRecognition v" << Version::VERSION_STRING << std::endl;
     std::cout << "Built: " << Version::BUILD_DATE << std::endl;
     std::cout << "Git: " << Version::GIT_COMMIT << std::endl << std::endl;
-    
+    std::cout << "Time: " << Utils::Time::HumanReadableTimeNowMillis() << std::endl << std::endl;
+
     // Load configuration from config.json
     ANN::Config config;
     if (!config.validate()) {
@@ -36,7 +39,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     config.print();
     std::cout << std::endl;
 
-    std::cout << " Time " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl << std::endl;
+    std::cout << "Time " << Utils::Time::HumanReadableTimeNowMillis() << std::endl << std::endl;
 
     // Create network from configuration
     ANN::WeightInitConfig weight_config;
@@ -91,7 +94,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     // std::cout << std::endl;
 
     std::cout << "Training network..." << std::endl;
-    std::cout << " Time " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl;
+    std::cout << "Time " << Utils::Time::HumanReadableTimeNowMillis() << std::endl << std::endl;
 
     // Shuffle the training data to prevent catastrophic forgetting
     auto instances = training_set.get_instances();
@@ -120,6 +123,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         double total_loss = 0.0;  // Track total loss for this epoch
         int correct_predictions = 0;  // Track training accuracy
         
+
+
         for (const auto & instance : instances) {
             double sample_loss = network.train(instance.input_data, instance.label);
             total_loss += sample_loss;  // Accumulate loss
@@ -135,7 +140,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
             // Show progress every 100 samples for better performance
             if (samples_processed % 100 == 0) {
                 double current_accuracy = (double)correct_predictions / samples_processed * 100.0;
-                std::cout << " Progress: " << samples_processed << "/" << instances.size() 
+                std::cout << "Progress: " << samples_processed << "/" << instances.size() 
                           << " Acc: " << std::fixed << std::setprecision(1) << current_accuracy << "% \r";
             }
         }
@@ -178,7 +183,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
 
     std::cout << "Training completed!\n";
 
-    std::cout << " Time " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl;
+    std::cout << " Time " << Utils::Time::HumanReadableTimeNowMillis() << std::endl << std::endl;
 
     std::cout << "\n\nTesting network on test data..." << std::endl;
 
@@ -217,15 +222,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     }
     std::cout << std::endl;
 
-    std::cout << " Time " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl;
-
     // Final accuracy summary
     std::cout << "\n=== FINAL RESULTS ===\n";
     std::cout << "Total tested: " << count << " images\n";
     std::cout << "Correct predictions: " << correct << "\n";
-    std::cout << "Final accuracy: " << std::fixed << std::setprecision(2) 
-              << (static_cast<double>(correct) / static_cast<double>(count)) * 100.0 
-              << "%\n";
+    std::cout << "Final accuracy: " << std::fixed << std::setprecision(2) << (static_cast<double>(correct) / static_cast<double>(count)) * 100.0 << "%\n";
+    std::cout << "Time " << Utils::Time::HumanReadableTimeNowMillis() << std::endl << std::endl;
 
     return 0;
 }

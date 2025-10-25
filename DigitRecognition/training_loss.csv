@@ -1,6 +1,1 @@
-epoch,total_loss,avg_loss,samples
-1,10040.6,1.00406,10000
-2,9012.05,0.901205,10000
-3,8987.04,0.898704,10000
-4,8964.56,0.896456,10000
-5,8942.76,0.894276,10000
+epoch,total_loss,avg_loss,training_accuracy,samples

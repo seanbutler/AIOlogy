@@ -173,25 +173,25 @@ public:
 
         std::cout << "=== CONFIGURATION ===" << std::endl;
         std::cout << "Network:" << std::endl;
-        std::cout << "  Layers: [";
+        std::cout << "\tLayers:\t[";
         for (size_t i = 0; i < network.layers.size(); ++i) {
             std::cout << network.layers[i];
             if (i < network.layers.size() - 1) std::cout << ", ";
         }
         std::cout << "]" << std::endl;
-        std::cout << "  Learning Rate: " << network.learning_rate << std::endl;
-        std::cout << "  Activation: " << network.activation << std::endl;
+        std::cout << "\tLearning Rate:\t" << network.learning_rate << std::endl;
+        std::cout << "\tActivation:\t" << network.activation << std::endl;
 
-        std::cout << "Training:" << std::endl;
-        std::cout << "  Epochs: " << training.epochs << std::endl;
-        std::cout << "  Shuffle: " << (training.shuffle ? "true" : "false") << std::endl;
-        std::cout << "  Data Path: " << training.data_path << std::endl;
+        std::cout << "Training:\t" << std::endl;
+        std::cout << "\tEpochs:\t" << training.epochs << std::endl;
+        std::cout << "\tShuffle:\t" << (training.shuffle ? "true" : "false") << std::endl;
+        std::cout << "\tData Path:\t" << training.data_path << std::endl;
 
         std::cout << "Data:" << std::endl;
-        std::cout << "  Train Path: " << data.train_path << std::endl;
-        std::cout << "  Test Path: " << data.test_path << std::endl;
-        std::cout << "  Image Size: " << data.image_size[0] << "x" << data.image_size[1] << std::endl;
-        std::cout << "  Normalize: " << (data.normalize ? "true" : "false") << std::endl;
+        std::cout << "\tTrain Path:\t" << data.train_path << std::endl;
+        std::cout << "\tTest Path:\t" << data.test_path << std::endl;
+        std::cout << "\tImage Size:\t" << data.image_size[0] << "x" << data.image_size[1] << std::endl;
+        std::cout << "\tNormalize:\t" << (data.normalize ? "true" : "false") << std::endl;
         std::cout << "=====================" << std::endl;
     }
 
