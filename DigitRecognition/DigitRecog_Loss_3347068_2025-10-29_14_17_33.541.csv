@@ -1,0 +1,2 @@
+epoch,total_loss,avg_loss,training_accuracy,samples
+1,855.298,0.0855298,38.85,10000

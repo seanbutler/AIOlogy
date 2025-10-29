@@ -12,12 +12,13 @@ add_executable(test_layer
 )
 
 # Add weight initialization test executable
+
 add_executable(test_weight_init
     test_weight_init.cpp
 )
 
-# Link the weight init test with layers library
-target_link_libraries(test_weight_init PRIVATE layers)
+# Link the weight init test with layers and config libraries
+target_link_libraries(test_weight_init PRIVATE layers config)
 
 # Set C++ standard for weight init test
 target_compile_features(test_weight_init PRIVATE cxx_std_23)

@@ -1,8 +1,9 @@
 # CMakeLists.txt for config library
 cmake_minimum_required(VERSION 3.16)
 
-# Create config library (header-only)
-add_library(config INTERFACE)
+
+# Create config library (static)
+add_library(config STATIC config.cpp)
 
 # Include directories
 target_include_directories(config INTERFACE

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "../layers/layers.h"
+#include "../learning_rate/learning_rate.hpp"
 
 namespace ANN {
 
@@ -15,11 +16,14 @@ namespace ANN {
     }
 
     class Network {
+
         public:
-                        Network(const std::vector<int>&layer_sizes = {784, 128, 64, 10}, 
-                                        const WeightInitConfig& weight_config = WeightInitConfig{})
-                                : input_layer(layer_sizes[0], layer_sizes[1], weight_config),
-                                    output_layer(layer_sizes[layer_sizes.size()-2], layer_sizes[layer_sizes.size()-1], weight_config)
+            Network(const std::vector<int>&layer_sizes = {784, 128, 64, 10}, 
+                    const WeightInitConfig& weight_config = WeightInitConfig{},
+                    ANN::LearningRateConfig lr_config = ANN::LearningRateConfig{})
+                : input_layer(layer_sizes[0], layer_sizes[1], weight_config),
+                  output_layer(layer_sizes[layer_sizes.size()-2], layer_sizes[layer_sizes.size()-1], weight_config),
+                  learning_rate_config(lr_config)
             {
                 // Create hidden layers (if any)
                 for(auto i = 1; i < layer_sizes.size() - 2; i++) {
@@ -44,13 +48,13 @@ namespace ANN {
                     layers.back().next_layer = std::make_shared<Layer>(output_layer);
                     output_layer.previous_layer = std::make_shared<Layer>(layers.back());
                 }
-            };
+            }
 
             ~Network(){
                 layers.clear();
             };
 
-            double train(const std::vector<double>& input_data, const int label, double learning_rate)
+            double train(const std::vector<double>& input_data, const int label, int epoch = 0)
             {
                 // Input validation
                 if (input_data.size() != input_layer.inputs_.size()) {
@@ -120,32 +124,33 @@ namespace ANN {
                     input_layer.backward(gradients);
                 }
 
+                // Update learning rate config
+                learning_rate_config.update(epoch);
+                double lr = learning_rate_config.get();
+
                 // Update Weights and Biases for all layers
-                
                 // Update input layer
                 for (size_t i = 0; i < input_layer.weights_.size(); ++i) {
-                    input_layer.weights_[i] -= learning_rate * input_layer.weight_gradients_[i];
+                    input_layer.weights_[i] -= lr * input_layer.weight_gradients_[i];
                 }
                 for (size_t i = 0; i < input_layer.biases_.size(); ++i) {
-                    input_layer.biases_[i] -= learning_rate * input_layer.bias_gradients_[i];
+                    input_layer.biases_[i] -= lr * input_layer.bias_gradients_[i];
                 }
-                
                 // Update hidden layers
                 for (auto& layer : layers) {
                     for (size_t i = 0; i < layer.weights_.size(); ++i) {
-                        layer.weights_[i] -= learning_rate * layer.weight_gradients_[i];
+                        layer.weights_[i] -= lr * layer.weight_gradients_[i];
                     }
                     for (size_t i = 0; i < layer.biases_.size(); ++i) {
-                        layer.biases_[i] -= learning_rate * layer.bias_gradients_[i];
+                        layer.biases_[i] -= lr * layer.bias_gradients_[i];
                     }
                 }
-                
                 // Update output layer
                 for (size_t i = 0; i < output_layer.weights_.size(); ++i) {
-                    output_layer.weights_[i] -= learning_rate * output_layer.weight_gradients_[i];
+                    output_layer.weights_[i] -= lr * output_layer.weight_gradients_[i];
                 }
                 for (size_t i = 0; i < output_layer.biases_.size(); ++i) {
-                    output_layer.biases_[i] -= learning_rate * output_layer.bias_gradients_[i];
+                    output_layer.biases_[i] -= lr * output_layer.bias_gradients_[i];
                 }
 
                 return loss;  // Return the calculated loss for this training sample
@@ -211,8 +216,7 @@ namespace ANN {
         Layer input_layer;
         std::vector<Layer> layers;
         Layer output_layer;
-    // No learning_rate member; pass as argument to train
-
+        ANN::LearningRateConfig learning_rate_config;
     };
 
 } // namespace NN

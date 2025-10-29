@@ -46,8 +46,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     ANN::WeightInitConfig weight_config;
     weight_config.method = config.network.weight_init.method;
     weight_config.range = config.network.weight_init.range;
-    
-    ANN::Network network(config.network.layers, weight_config);
+    ANN::Network network(config.network.layers, weight_config, config.training.learning_rate);
     ANN::TrainingSet training_set;
 
     //
@@ -140,9 +139,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
 
 
         for (const auto & instance : instances) {
-            double sample_loss = network.train(instance.input_data, 
-                                                instance.label, 
-                                                config.training.learning_rate.values[0]);
+            double sample_loss = network.train(instance.input_data, instance.label, epoch);
             total_loss += sample_loss;  // Accumulate loss
             
             // Calculate accuracy on this sample
@@ -161,14 +158,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
             }
         }
         
-        // std::atomic<int> samples_processed{0};
-        // std::for_each(std::execution::par, instances.begin(), instances.end(),
-        //       [&](const auto& instance) {
-        //             // Each thread processes different samples
-        //             network.train(instance.input_data, instance.label);
-        //             samples_processed.fetch_add(1);
-        //       });
-
         // Calculate statistics for this epoch
         double avg_loss = total_loss / samples_processed;
         double training_accuracy = (double)correct_predictions / samples_processed * 100.0;
@@ -263,13 +252,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         txt_file << "\nActivation: " << config.network.activation << "\n";
         txt_file << "Weight Init: " << config.network.weight_init.method << " [" << config.network.weight_init.range[0] << ", " << config.network.weight_init.range[1] << "]\n";
         txt_file << "Training Epochs: " << config.training.epochs << "\n";
-        txt_file << "Learning Rate Method: " << config.training.learning_rate.method << "\n";
-        txt_file << "Learning Rate Values: [";
-        for (size_t i = 0; i < config.training.learning_rate.values.size(); ++i) {
-            txt_file << config.training.learning_rate.values[i];
-            if (i < config.training.learning_rate.values.size() - 1) txt_file << ", ";
-        }
-        txt_file << "]\n";
+        txt_file << "Learning Rate Schedule: " << config.training.learning_rate.schedule << "\n";
+        txt_file << "Learning Rate Initial: " << config.training.learning_rate.initial << "\n";
+        txt_file << "Learning Rate Decay: " << config.training.learning_rate.decay << "\n";
+        txt_file << "Learning Rate Min: " << config.training.learning_rate.min << "\n";
+        txt_file << "Learning Rate Step: " << config.training.learning_rate.step << "\n";
         txt_file << "Shuffle: " << (config.training.shuffle ? "true" : "false") << "\n";
         txt_file << "Train Path: " << config.data.train_path << "\n";
         txt_file << "Test Path: " << config.data.test_path << "\n";
