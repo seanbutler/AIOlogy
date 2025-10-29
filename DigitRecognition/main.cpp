@@ -253,8 +253,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         txt_file << "========================================\n";
         txt_file << "Version: " << Version::VERSION_STRING << "\n";
         txt_file << "Git Commit: " << Version::GIT_COMMIT << "\n";
-        txt_file << "Build Date: " << Version::BUILD_DATE << "\n";
-        txt_file << "Run Date: " << Utils::Time::HumanReadableTimeNowMillis() << "\n\n";
+        txt_file << "Build Date: " << Version::BUILD_DATE << "\n\n";
+
         txt_file << "Network Layers: ";
         for (size_t i = 0; i < config.network.layers.size(); ++i) {
             txt_file << config.network.layers[i];
