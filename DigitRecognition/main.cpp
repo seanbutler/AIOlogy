@@ -46,7 +46,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     weight_config.method = config.network.weight_init.method;
     weight_config.range = config.network.weight_init.range;
     
-    ANN::Network network(config.network.layers, config.network.learning_rate, weight_config);
+    ANN::Network network(config.network.layers, weight_config);
     ANN::TrainingSet training_set;
 
     //
@@ -126,7 +126,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
 
 
         for (const auto & instance : instances) {
-            double sample_loss = network.train(instance.input_data, instance.label);
+            double sample_loss = network.train(instance.input_data, 
+                                                instance.label, 
+                                                config.training.learning_rate.values[0]);
             total_loss += sample_loss;  // Accumulate loss
             
             // Calculate accuracy on this sample

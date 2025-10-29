@@ -16,7 +16,6 @@ public:
     // Network configuration
     struct NetworkConfig {
         std::vector<int> layers;
-        double learning_rate;
         std::string activation;
         
         // Weight initialization
@@ -31,6 +30,11 @@ public:
         int epochs;
         bool shuffle;
         std::string data_path;
+
+        struct LearningRate {
+            std::string method; // e.g. "exponential", "step", "constant"
+            std::vector<double> values; // e.g. [initial, decay] or [initial, step, ...]
+        } learning_rate;
     } training;
 
     // Data configuration
@@ -67,9 +71,7 @@ public:
             if (config_json.contains("network")) {
                 auto net = config_json["network"];
                 network.layers = net.value("layers", std::vector<int>{784, 128, 64, 10});
-                network.learning_rate = net.value("learning_rate", 0.01);
                 network.activation = net.value("activation", "sigmoid");
-                
                 // Parse weight initialization
                 if (net.contains("weight_init")) {
                     auto weight_init = net["weight_init"];
@@ -88,6 +90,15 @@ public:
                 training.epochs = train.value("epochs", 5);
                 training.shuffle = train.value("shuffle", true);
                 training.data_path = train.value("data_path", "./data/mnist_images/");
+                // Parse learning rate schedule
+                if (train.contains("learning_rate")) {
+                    auto lr = train["learning_rate"];
+                    training.learning_rate.method = lr.value("method", "constant");
+                    training.learning_rate.values = lr.value("values", std::vector<double>{0.01});
+                } else {
+                    training.learning_rate.method = "constant";
+                    training.learning_rate.values = {0.01};
+                }
             }
 
             // Parse data configuration
@@ -117,16 +128,17 @@ public:
         json config_json;
 
         // Network configuration
-        config_json["network"]["layers"] = network.layers;
-        config_json["network"]["learning_rate"] = network.learning_rate;
-        config_json["network"]["activation"] = network.activation;
-        config_json["network"]["weight_init"]["method"] = network.weight_init.method;
-        config_json["network"]["weight_init"]["range"] = network.weight_init.range;
+    config_json["network"]["layers"] = network.layers;
+    config_json["network"]["activation"] = network.activation;
+    config_json["network"]["weight_init"]["method"] = network.weight_init.method;
+    config_json["network"]["weight_init"]["range"] = network.weight_init.range;
 
         // Training configuration
-        config_json["training"]["epochs"] = training.epochs;
-        config_json["training"]["shuffle"] = training.shuffle;
-        config_json["training"]["data_path"] = training.data_path;
+    config_json["training"]["epochs"] = training.epochs;
+    config_json["training"]["shuffle"] = training.shuffle;
+    config_json["training"]["data_path"] = training.data_path;
+    config_json["training"]["learning_rate"]["method"] = training.learning_rate.method;
+    config_json["training"]["learning_rate"]["values"] = training.learning_rate.values;
 
         // Data configuration
         config_json["data"]["train_path"] = data.train_path;
@@ -146,7 +158,7 @@ public:
     void load_defaults() {
         // Network defaults
         network.layers = {784, 128, 64, 10};
-        network.learning_rate = 0.01;
+    // network.learning_rate removed
         network.activation = "sigmoid";
         network.weight_init.method = "uniform";
         network.weight_init.range = {-1.0, 1.0};
@@ -167,33 +179,38 @@ public:
         output.loss_file = "training_loss.csv";
     }
 
-    // Print current configuration
-    void print() const {
-        // TODO why not just pretty print the json object?
+        // Print current configuration
+        void print() const {
+            // TODO why not just pretty print the json object?
+            std::cout << "=== CONFIGURATION ===" << std::endl;
+            std::cout << "Network:" << std::endl;
+            std::cout << "\tLayers:\t[";
+            for (size_t i = 0; i < network.layers.size(); ++i) {
+                std::cout << network.layers[i];
+                if (i < network.layers.size() - 1) std::cout << ", ";
+            }
+            std::cout << "]" << std::endl;
+            std::cout << "\tActivation:\t" << network.activation << std::endl;
 
-        std::cout << "=== CONFIGURATION ===" << std::endl;
-        std::cout << "Network:" << std::endl;
-        std::cout << "\tLayers:\t[";
-        for (size_t i = 0; i < network.layers.size(); ++i) {
-            std::cout << network.layers[i];
-            if (i < network.layers.size() - 1) std::cout << ", ";
+            std::cout << "Training:" << std::endl;
+            std::cout << "\tEpochs:\t" << training.epochs << std::endl;
+            std::cout << "\tShuffle:\t" << (training.shuffle ? "true" : "false") << std::endl;
+            std::cout << "\tData Path:\t" << training.data_path << std::endl;
+            std::cout << "\tLearning Rate Method:\t" << training.learning_rate.method << std::endl;
+            std::cout << "\tLearning Rate Values:\t[";
+            for (size_t i = 0; i < training.learning_rate.values.size(); ++i) {
+                std::cout << training.learning_rate.values[i];
+                if (i < training.learning_rate.values.size() - 1) std::cout << ", ";
+            }
+            std::cout << "]" << std::endl;
+
+            std::cout << "Data:" << std::endl;
+            std::cout << "\tTrain Path:\t" << data.train_path << std::endl;
+            std::cout << "\tTest Path:\t" << data.test_path << std::endl;
+            std::cout << "\tImage Size:\t" << data.image_size[0] << "x" << data.image_size[1] << std::endl;
+            std::cout << "\tNormalize:\t" << (data.normalize ? "true" : "false") << std::endl;
+            std::cout << "=====================" << std::endl;
         }
-        std::cout << "]" << std::endl;
-        std::cout << "\tLearning Rate:\t" << network.learning_rate << std::endl;
-        std::cout << "\tActivation:\t" << network.activation << std::endl;
-
-        std::cout << "Training:\t" << std::endl;
-        std::cout << "\tEpochs:\t" << training.epochs << std::endl;
-        std::cout << "\tShuffle:\t" << (training.shuffle ? "true" : "false") << std::endl;
-        std::cout << "\tData Path:\t" << training.data_path << std::endl;
-
-        std::cout << "Data:" << std::endl;
-        std::cout << "\tTrain Path:\t" << data.train_path << std::endl;
-        std::cout << "\tTest Path:\t" << data.test_path << std::endl;
-        std::cout << "\tImage Size:\t" << data.image_size[0] << "x" << data.image_size[1] << std::endl;
-        std::cout << "\tNormalize:\t" << (data.normalize ? "true" : "false") << std::endl;
-        std::cout << "=====================" << std::endl;
-    }
 
     // Validation methods
     bool validate() const {
@@ -201,8 +218,9 @@ public:
             std::cerr << "Error: Network must have at least 2 layers" << std::endl;
             return false;
         }
-        if (network.learning_rate <= 0.0 || network.learning_rate > 1.0) {
-            std::cerr << "Error: Learning rate must be between 0 and 1" << std::endl;
+        // Validate learning rate values
+        if (training.learning_rate.values.empty() || training.learning_rate.values[0] <= 0.0 || training.learning_rate.values[0] > 1.0) {
+            std::cerr << "Error: Initial learning rate must be between 0 and 1" << std::endl;
             return false;
         }
         if (training.epochs <= 0) {

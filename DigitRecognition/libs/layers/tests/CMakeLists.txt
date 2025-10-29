@@ -11,6 +11,24 @@ add_executable(test_layer
     test_layer.cpp
 )
 
+# Add weight initialization test executable
+add_executable(test_weight_init
+    test_weight_init.cpp
+)
+
+# Link the weight init test with layers library
+target_link_libraries(test_weight_init PRIVATE layers)
+
+# Set C++ standard for weight init test
+target_compile_features(test_weight_init PRIVATE cxx_std_23)
+
+# Add compiler flags for weight init test
+if(MSVC)
+    target_compile_options(test_weight_init PRIVATE /W4)
+else()
+    target_compile_options(test_weight_init PRIVATE -Wall -Wextra)
+endif()
+
 # Link the test executable with the layers library
 target_link_libraries(test_layers PRIVATE layers)
 
@@ -31,6 +49,9 @@ endif()
 # Register the test with CTest
 add_test(NAME LayersLibraryTest COMMAND test_layers)
 add_test(NAME DetailedLayerTest COMMAND test_layer)
+
+# Register weight initialization test with CTest
+add_test(NAME WeightInitTest COMMAND test_weight_init)
 
 # Set test properties
 set_tests_properties(LayersLibraryTest PROPERTIES

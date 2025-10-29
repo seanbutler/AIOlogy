@@ -34,7 +34,7 @@ DigitRecognition/
 │   ├── mnist_data/          # Raw MNIST dataset files (PyTorch format)
 │   └── mnist_images/        # Processed MNIST images (PNG format)
 ├── libs/                    # Core neural network libraries
-│   ├── activations/         # Activation functions (sigmoid, ReLU, softmax)
+│   ├── activations/         # Activation functions (sigmoid, ReLU)
 │   ├── config/              # JSON configuration management
 │   ├── images/              # Image loading and preprocessing
 │   ├── layers/              # Neural network layer implementation
@@ -262,11 +262,11 @@ auto outputs = layer.forward();
 
 ### Activation Functions (`libs/activations/`)
 
-Mathematical functions for non-linearity:
+Implements:
+- **Sigmoid** – Smooth activation for binary classification and output layers
+- **ReLU** – Fast activation for hidden layers
 
-- **Sigmoid** - Smooth activation for binary classification
-- **ReLU** - Fast activation for hidden layers  
-
+Both are fully tested for correctness and edge cases.
 
 ### Image Processing (`libs/images/`)
 
@@ -371,6 +371,7 @@ This project is designed for learning neural networks:
 ## Future Enhancements
 
 - **Loss Curve Plotting** - CSV output for training visualization
+- **Validation Loss Tracking** – Add validation loss calculation and reporting for better generalization monitoring
 - **Convolutional Layers** - Add CNN support for better image recognition
 - **GPU Acceleration** - CUDA or OpenCL integration
 - **Model Serialization** - Save/load trained networks to/from JSON

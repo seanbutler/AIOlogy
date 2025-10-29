@@ -8,6 +8,6 @@ namespace Version {
     constexpr int MINOR = 3;
     constexpr int PATCH = 0;
     constexpr const char* VERSION_STRING = "0.3.0";
-    constexpr const char* BUILD_DATE = "2025-10-25 21:05:25";
-    constexpr const char* GIT_COMMIT = "495e52e";
+    constexpr const char* BUILD_DATE = "2025-10-29 11:47:49";
+    constexpr const char* GIT_COMMIT = "c75c629";
 }

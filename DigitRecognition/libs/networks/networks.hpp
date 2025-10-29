@@ -16,12 +16,10 @@ namespace ANN {
 
     class Network {
         public:
-            Network(const std::vector<int>&layer_sizes = {784, 128, 64, 10}, 
-                    double lr = 0.01, 
-                    const WeightInitConfig& weight_config = WeightInitConfig{})
-                : input_layer(layer_sizes[0], layer_sizes[1], weight_config),
-                  output_layer(layer_sizes[layer_sizes.size()-2], layer_sizes[layer_sizes.size()-1], weight_config),
-                  learning_rate(lr)
+                        Network(const std::vector<int>&layer_sizes = {784, 128, 64, 10}, 
+                                        const WeightInitConfig& weight_config = WeightInitConfig{})
+                                : input_layer(layer_sizes[0], layer_sizes[1], weight_config),
+                                    output_layer(layer_sizes[layer_sizes.size()-2], layer_sizes[layer_sizes.size()-1], weight_config)
             {
                 // Create hidden layers (if any)
                 for(auto i = 1; i < layer_sizes.size() - 2; i++) {
@@ -52,7 +50,7 @@ namespace ANN {
                 layers.clear();
             };
 
-            double train(const std::vector<double>& input_data, const int label)
+            double train(const std::vector<double>& input_data, const int label, double learning_rate)
             {
                 // Input validation
                 if (input_data.size() != input_layer.inputs_.size()) {
@@ -213,7 +211,7 @@ namespace ANN {
         Layer input_layer;
         std::vector<Layer> layers;
         Layer output_layer;
-        double learning_rate;  // Learning rate for gradient descent
+    // No learning_rate member; pass as argument to train
 
     };
 

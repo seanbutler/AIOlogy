@@ -10,9 +10,13 @@
   },
 
   "training": {
-    "epochs": 25,
+    "epochs": 3,
     "shuffle": true,
-    "data_path": "./data/mnist_images/"
+    "data_path": "./data/mnist_images/",
+    "learning_rate": {
+      "method": "constant",
+      "values": [0.05]
+    }
   },
 
   "data": {
