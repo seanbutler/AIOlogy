@@ -1,3 +1,4 @@
+    // Prepare txt filename for config and results (move after loss_filename is defined)
 #include <iostream>
 #include <string>
 #include <filesystem>
@@ -106,10 +107,23 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     
     // Open loss tracking file if configured
     std::ofstream loss_file;
+    std::string loss_filename = "DigitRecog_Loss_" + std::string(Version::GIT_COMMIT) + "_" + Utils::Time::HumanReadableTimeNowMillis() + ".csv";
+    // Replace spaces and colons in datetime for filename safety
+    for (auto& c : loss_filename) {
+        if (c == ' ' || c == ':') c = '_';
+    }
+    // Now generate txt_filename from loss_filename
+    std::string txt_filename = loss_filename;
+    size_t dot_pos = txt_filename.rfind('.');
+    if (dot_pos != std::string::npos) {
+        txt_filename.replace(dot_pos, txt_filename.length() - dot_pos, ".txt");
+    } else {
+        txt_filename += ".txt";
+    }
     if (config.output.save_plots) {
-        loss_file.open(config.output.loss_file);
+        loss_file.open(loss_filename);
         loss_file << "epoch,total_loss,avg_loss,training_accuracy,samples\n";  // CSV header
-        std::cout << "Loss tracking enabled - saving to: " << config.output.loss_file << std::endl;
+        std::cout << "Loss tracking enabled - saving to: " << loss_filename << std::endl;
     }
     
     for (int epoch = 0; epoch < config.training.epochs; ++epoch) {
@@ -180,7 +194,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     // Close loss file
     if (loss_file.is_open()) {
         loss_file.close();
-        std::cout << "Loss data saved to: " << config.output.loss_file << std::endl;
+        std::cout << "Loss data saved to: " << loss_filename << std::endl;
     }
 
     std::cout << "Training completed!\n";
@@ -228,8 +242,48 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     std::cout << "\n=== FINAL RESULTS ===\n";
     std::cout << "Total tested: " << count << " images\n";
     std::cout << "Correct predictions: " << correct << "\n";
-    std::cout << "Final accuracy: " << std::fixed << std::setprecision(2) << (static_cast<double>(correct) / static_cast<double>(count)) * 100.0 << "%\n";
+    double final_accuracy = (static_cast<double>(correct) / static_cast<double>(count)) * 100.0;
+    std::cout << "Final accuracy: " << std::fixed << std::setprecision(2) << final_accuracy << "%\n";
     std::cout << "Time " << Utils::Time::HumanReadableTimeNowMillis() << std::endl << std::endl;
+
+    // Save config and results to txt file
+    std::ofstream txt_file(txt_filename);
+    if (txt_file.is_open()) {
+        txt_file << "DigitRecognition Configuration and Results\n";
+        txt_file << "========================================\n";
+        txt_file << "Version: " << Version::VERSION_STRING << "\n";
+        txt_file << "Git Commit: " << Version::GIT_COMMIT << "\n";
+        txt_file << "Build Date: " << Version::BUILD_DATE << "\n";
+        txt_file << "Run Date: " << Utils::Time::HumanReadableTimeNowMillis() << "\n\n";
+        txt_file << "Network Layers: ";
+        for (size_t i = 0; i < config.network.layers.size(); ++i) {
+            txt_file << config.network.layers[i];
+            if (i < config.network.layers.size() - 1) txt_file << ", ";
+        }
+        txt_file << "\nActivation: " << config.network.activation << "\n";
+        txt_file << "Weight Init: " << config.network.weight_init.method << " [" << config.network.weight_init.range[0] << ", " << config.network.weight_init.range[1] << "]\n";
+        txt_file << "Training Epochs: " << config.training.epochs << "\n";
+        txt_file << "Learning Rate Method: " << config.training.learning_rate.method << "\n";
+        txt_file << "Learning Rate Values: [";
+        for (size_t i = 0; i < config.training.learning_rate.values.size(); ++i) {
+            txt_file << config.training.learning_rate.values[i];
+            if (i < config.training.learning_rate.values.size() - 1) txt_file << ", ";
+        }
+        txt_file << "]\n";
+        txt_file << "Shuffle: " << (config.training.shuffle ? "true" : "false") << "\n";
+        txt_file << "Train Path: " << config.data.train_path << "\n";
+        txt_file << "Test Path: " << config.data.test_path << "\n";
+        txt_file << "Image Size: " << config.data.image_size[0] << "x" << config.data.image_size[1] << "\n";
+        txt_file << "Normalize: " << (config.data.normalize ? "true" : "false") << "\n";
+        txt_file << "\n=== FINAL RESULTS ===\n";
+        txt_file << "Total tested: " << count << " images\n";
+        txt_file << "Correct predictions: " << correct << "\n";
+        txt_file << "Final accuracy: " << std::fixed << std::setprecision(2) << final_accuracy << "%\n";
+        txt_file.close();
+        std::cout << "Config and results saved to: " << txt_filename << std::endl;
+    } else {
+        std::cerr << "Failed to save config/results to: " << txt_filename << std::endl;
+    }
 
     return 0;
 }
