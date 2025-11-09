@@ -1,0 +1,48 @@
+{
+  "aircraftSpec": {
+    "mass": 1200.0,
+    "wingArea": 16.0,
+    "wingSpan": 10.0,
+    "liftCoeff": 0.5,
+    "parasiteDrag": 0.03,
+    "inducedDragFactor": 0.045,
+    "maxThrust": 6000.0,
+    "thrustAngle": 0.0,
+    "minRPM": 800.0,
+    "maxRPM": 2700.0,
+    "rpmSpoolUpRate": 500.0,
+    "rpmSpoolDownRate": 300.0,
+    "inertiaX": 500.0,
+    "inertiaY": 800.0,
+    "inertiaZ": 1200.0
+  },
+  "aircraftState": {
+    "position": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "velocity": {
+      "x": 20.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "orientation": {
+      "roll": 0.0,
+      "pitch": 0.0,
+      "yaw": 0.0
+    },
+    "controls": {
+      "throttle": 0.7,
+      "elevator": 0.0,
+      "aileron": 0.0,
+      "rudder": 0.0
+    },
+    "currentRPM": 800.0
+  },
+  "simulationParameters": {
+    "dt": 0.01,
+    "totalTime": 100.0,
+    "printInterval": 100
+  }
+}
