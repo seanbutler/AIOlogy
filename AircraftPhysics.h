@@ -4,18 +4,51 @@
 #include "Vec3.h"
 #include "AircraftSpec.h"
 #include "AircraftState.h"
+#include "Planet.h"
 #include <cmath>
 
 class AircraftPhysics {
 private:
     const AircraftSpec& spec;
-    
-    // Physical constants
-    static constexpr double GRAVITY = 9.81;        // m/s^2
-    static constexpr double AIR_DENSITY = 1.225;   // kg/m^3 at sea level
+    const Planet& planet;
 
 public:
-    AircraftPhysics(const AircraftSpec& aircraftSpec) : spec(aircraftSpec) {}
+    AircraftPhysics(const AircraftSpec& aircraftSpec, const Planet& planetProperties) 
+        : spec(aircraftSpec), planet(planetProperties) {}
+
+    // Calculate altitude above sea level (negative position.z in Z-down convention)
+    double getAltitude(const AircraftState& state) const {
+        return -state.position.z;  // Z-down convention: negative Z is up
+    }
+
+    // Calculate air density based on altitude using International Standard Atmosphere (ISA) model
+    double getAirDensity(const AircraftState& state) const {
+        if (!planet.hasAtmosphere) {
+            return 0.0;  // No atmosphere (e.g., Moon)
+        }
+        
+        double altitude = getAltitude(state);
+        
+        // ISA model valid up to 11km (troposphere)
+        if (altitude < 0.0) {
+            altitude = 0.0;  // Below sea level, use sea level density
+        }
+        
+        if (planet.tempLapsRate > 0.0 && altitude < 11000.0) {
+            // Troposphere: temperature decreases linearly
+            double temp = planet.seaLevelTemp - planet.tempLapsRate * altitude;
+            if (temp <= 0.0) temp = 1.0;  // Prevent division by zero
+            
+            double pressure = planet.seaLevelPressure * std::pow(temp / planet.seaLevelTemp, 
+                            (planet.gravity / (planet.tempLapsRate * planet.gasConstant)));
+            double density = pressure / (planet.gasConstant * temp);
+            return density;
+        } else {
+            // Simplified: exponential decay model for thin atmospheres or high altitude
+            double scaleHeight = (planet.gasConstant * planet.seaLevelTemp) / planet.gravity;
+            return planet.seaLevelDensity * std::exp(-altitude / scaleHeight);
+        }
+    }
 
     // Calculate air speed (magnitude of velocity)
     double getAirspeed(const AircraftState& state) const {
@@ -32,7 +65,8 @@ public:
     // Calculate dynamic pressure: q = 0.5 * ρ * v^2
     double getDynamicPressure(const AircraftState& state) const {
         double airspeed = getAirspeed(state);
-        return 0.5 * AIR_DENSITY * airspeed * airspeed;
+        double density = getAirDensity(state);
+        return 0.5 * density * airspeed * airspeed;
     }
 
     // Calculate lift force in body frame
@@ -97,7 +131,7 @@ public:
     Vec3 calculateGravity() const {
         // Gravity acts downward in world frame (negative Z if Z is up)
         // Using aerospace convention where Z is down, so gravity is positive Z
-        return Vec3(0, 0, spec.mass * GRAVITY);
+        return Vec3(0, 0, spec.mass * planet.gravity);
     }
 
     // Calculate total force in world frame

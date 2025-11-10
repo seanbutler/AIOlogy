@@ -3,6 +3,7 @@
 
 #include "AircraftSpec.h"
 #include "AircraftState.h"
+#include "Planet.h"
 #include "Vec3.h"
 #include <nlohmann/json.hpp>
 #include <string>
@@ -24,7 +25,8 @@ public:
     static bool loadFromFile(const std::string& filename, 
                             AircraftSpec& spec, 
                             AircraftState& state,
-                            SimulationParameters& simParams) {
+                            SimulationParameters& simParams,
+                            Planet& planet) {
         try {
             std::ifstream file(filename);
             if (!file.is_open()) {
@@ -95,6 +97,18 @@ public:
                 simParams.printInterval = simJson.value("printInterval", simParams.printInterval);
             }
             
+            // Load planet properties from nested object
+            if (j.contains("planet")) {
+                auto& planetJson = j["planet"];
+                planet.gravity = planetJson.value("gravity", planet.gravity);
+                planet.seaLevelDensity = planetJson.value("seaLevelDensity", planet.seaLevelDensity);
+                planet.seaLevelPressure = planetJson.value("seaLevelPressure", planet.seaLevelPressure);
+                planet.seaLevelTemp = planetJson.value("seaLevelTemp", planet.seaLevelTemp);
+                planet.tempLapsRate = planetJson.value("tempLapsRate", planet.tempLapsRate);
+                planet.gasConstant = planetJson.value("gasConstant", planet.gasConstant);
+                planet.hasAtmosphere = planetJson.value("hasAtmosphere", planet.hasAtmosphere);
+            }
+            
             return true;
         } catch (const std::exception& e) {
             return false;
@@ -148,6 +162,15 @@ public:
                 {"dt", 0.1},
                 {"totalTime", 100.0},
                 {"printInterval", 100}
+            }},
+            {"planet", {
+                {"gravity", 9.81},
+                {"seaLevelDensity", 1.225},
+                {"seaLevelPressure", 101325.0},
+                {"seaLevelTemp", 288.15},
+                {"tempLapsRate", 0.0065},
+                {"gasConstant", 287.05},
+                {"hasAtmosphere", true}
             }}
         };
         
