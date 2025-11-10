@@ -5,7 +5,63 @@ A real-time aircraft physics simulation engine that can be controlled via networ
 
 ---
 
-## Current Next Goal: Network Interface
+## Current Next Goal: Project Refactoring
+
+### Objective
+Separate the physics simulation library from application code for better modularity and reusability.
+
+### Why Refactor First?
+- Clean separation of concerns before adding networking
+- Physics library can be reused in multiple applications (CLI, network server, GUI, tests)
+- Easier to test and maintain
+- Standard C++ library structure
+
+### New Project Structure
+```
+FL1/
+├── CMakeLists.txt                  # Root CMake (builds all)
+├── lib/
+│   └── FlightSim/                  # Physics library
+│       ├── CMakeLists.txt          # Library-specific CMake
+│       ├── include/
+│       │   └── FlightSim/
+│       │       ├── Vec3.h
+│       │       ├── AircraftSpec.h
+│       │       ├── AircraftState.h
+│       │       ├── AircraftPhysics.h
+│       │       ├── Planet.h
+│       │       └── ConfigLoader.h
+│       └── src/                    # Implementation files (if needed)
+├── apps/
+│   └── cli/                        # Command-line application
+│       ├── CMakeLists.txt
+│       └── main.cpp                # Uses FlightSim library
+├── scripts/                        # Build/run scripts
+└── configs/                        # JSON configuration files
+```
+
+### Implementation Tasks
+
+#### Refactoring Checklist
+- [ ] Create `lib/FlightSim/` directory structure
+- [ ] Move headers to `lib/FlightSim/include/FlightSim/`
+- [ ] Create library CMakeLists.txt with proper include paths
+- [ ] Move current main.cpp to `apps/cli/`
+- [ ] Update root CMakeLists.txt to build library first
+- [ ] Update app CMakeLists.txt to link against library
+- [ ] Test build system works
+- [ ] Update build scripts to work with new structure
+
+#### Benefits
+✅ Reusable physics library  
+✅ Multiple applications can share same core  
+✅ Easier unit testing  
+✅ Professional project structure  
+✅ Ready for network server as separate app  
+
+---
+
+## Goal: Network Interface
 
 ### Objective
 Transform the sim into a continuous process with socket-based IPC (Inter-Process Communication).
@@ -13,9 +69,9 @@ Transform the sim into a continuous process with socket-based IPC (Inter-Process
 ### Architecture
 ```
 ┌─────────────────┐           JSON over TCP           ┌─────────────────┐
-│                 │◄────────────────────────────────►│                 │
-│  Client Apps    │   Commands (throttle, etc)       │  Sim Server     │
-│  (GUI, AI, etc) │   State (pos, vel, orientation)  │  (Physics Loop) │
+│                 │◄─────────────────────────────────►│                 │
+│  Client Apps    │   Commands (throttle, etc)        │  Sim Server     │
+│  (GUI, AI, etc) │   State (pos, vel, orientation)   │  (Physics Loop) │
 │                 │                                   │                 │
 └─────────────────┘                                   └─────────────────┘
 ```
@@ -82,6 +138,9 @@ Transform the sim into a continuous process with socket-based IPC (Inter-Process
    - Thread-safe: Mutex for state access
 
 ### Implementation Tasks
+
+#### Phase 0: Library Refactoring (Priority: CRITICAL - DO FIRST)
+See "Current Next Goal: Project Refactoring" above.
 
 #### Phase 1: Basic Network Server (Priority: HIGH)
 - [ ] Add Asio to CMakeLists.txt via FetchContent
@@ -212,22 +271,29 @@ Transform the sim into a continuous process with socket-based IPC (Inter-Process
 - [ ] Documentation (Doxygen)
 - [ ] Performance profiling
 
-### Project Structure
+### Project Structure (After Refactoring)
 ```
 FL1/
-├── src/                    # Source files
-│   ├── core/              # Physics engine
-│   ├── network/           # Network server
-│   ├── io/                # Config loading
-│   └── main.cpp           # Entry point
-├── include/               # Header files
-├── tests/                 # Unit tests
-├── scripts/               # Build/run scripts
-├── configs/               # JSON configurations
-├── docs/                  # Documentation
-└── examples/              # Example clients
-    ├── python/            # Python client examples
-    └── cpp/               # C++ client examples
+├── lib/
+│   └── FlightSim/              # Core physics library
+│       ├── CMakeLists.txt
+│       ├── include/FlightSim/  # Public headers
+│       └── src/                # Implementation (if needed)
+├── apps/
+│   ├── cli/                    # Command-line app
+│   │   ├── CMakeLists.txt
+│   │   └── main.cpp
+│   └── server/                 # Network server (future)
+│       ├── CMakeLists.txt
+│       ├── main.cpp
+│       └── NetworkServer.h
+├── tests/                      # Unit tests
+├── scripts/                    # Build/run scripts
+├── configs/                    # JSON configurations
+├── docs/                       # Documentation
+└── examples/                   # Example clients
+    ├── python/                 # Python client examples
+    └── cpp/                    # C++ client examples
 ```
 
 ### Dependencies Management
@@ -239,6 +305,12 @@ FL1/
 ---
 
 ## Timeline Estimate
+
+### Sprint 0 (2-3 days): Library Refactoring
+- Restructure project directories
+- Create library CMakeLists
+- Update build system
+- Verify everything still works
 
 ### Sprint 1 (1-2 weeks): Network Foundation
 - Integrate Asio
