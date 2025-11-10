@@ -23,7 +23,7 @@
       "z": 0.0
     },
     "velocity": {
-      "x": 20.0,
+      "x": 50.0,
       "y": 0.0,
       "z": 0.0
     },
@@ -33,25 +33,25 @@
       "yaw": 0.0
     },
     "controls": {
-      "throttle": 0.7,
+      "throttle": 1.0,
       "elevator": 0.0,
       "aileron": 0.0,
       "rudder": 0.0
     },
-    "currentRPM": 800.0
+    "currentRPM": 2700.0
   },
   "simulationParameters": {
     "dt": 0.1,
-    "totalTime": 100.0,
-    "printInterval": 100
+    "totalTime": 20.0,
+    "printInterval": 10
   },
   "planet": {
-    "gravity": 9.81,
-    "seaLevelDensity": 1.225,
-    "seaLevelPressure": 101325.0,
-    "seaLevelTemp": 288.15,
-    "tempLapsRate": 0.0065,
-    "gasConstant": 287.05,
+    "gravity": 3.71,
+    "seaLevelDensity": 0.020,
+    "seaLevelPressure": 610.0,
+    "seaLevelTemp": 210.0,
+    "tempLapsRate": 0.0,
+    "gasConstant": 188.9,
     "hasAtmosphere": true
   }
 }
