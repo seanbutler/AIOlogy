@@ -1,22 +1,34 @@
 {
   "aircraftSpec": {
-    "mass": 1200.0,
-    "wingArea": 16.0,
-    "wingSpan": 10.0,
-    "liftCoeff": 0.5,
-    "parasiteDrag": 0.03,
     "inducedDragFactor": 0.045,
-    "maxThrust": 6000.0,
-    "thrustAngle": 0.0,
-    "minRPM": 800.0,
-    "maxRPM": 2700.0,
-    "rpmSpoolUpRate": 500.0,
-    "rpmSpoolDownRate": 300.0,
     "inertiaX": 500.0,
     "inertiaY": 800.0,
-    "inertiaZ": 1200.0
+    "inertiaZ": 1200.0,
+    "liftCoeff": 0.5,
+    "mass": 1200.0,
+    "maxRPM": 2700.0,
+    "maxThrust": 6000.0,
+    "minRPM": 800.0,
+    "parasiteDrag": 0.03,
+    "rpmSpoolDownRate": 300.0,
+    "rpmSpoolUpRate": 500.0,
+    "thrustAngle": 0.0,
+    "wingArea": 16.0,
+    "wingSpan": 10.0
   },
   "aircraftState": {
+    "controls": {
+      "aileron": 0.0,
+      "elevator": 0.0,
+      "rudder": 0.0,
+      "throttle": 0.7
+    },
+    "currentRPM": 800.0,
+    "orientation": {
+      "pitch": 0.0,
+      "roll": 0.0,
+      "yaw": 0.0
+    },
     "position": {
       "x": 0.0,
       "y": 0.0,
@@ -26,32 +38,20 @@
       "x": 20.0,
       "y": 0.0,
       "z": 0.0
-    },
-    "orientation": {
-      "roll": 0.0,
-      "pitch": 0.0,
-      "yaw": 0.0
-    },
-    "controls": {
-      "throttle": 0.7,
-      "elevator": 0.0,
-      "aileron": 0.0,
-      "rudder": 0.0
-    },
-    "currentRPM": 800.0
-  },
-  "simulationParameters": {
-    "dt": 0.1,
-    "totalTime": 100.0,
-    "printInterval": 100
+    }
   },
   "planet": {
+    "gasConstant": 287.05,
     "gravity": 9.81,
+    "hasAtmosphere": true,
     "seaLevelDensity": 1.225,
     "seaLevelPressure": 101325.0,
     "seaLevelTemp": 288.15,
-    "tempLapsRate": 0.0065,
-    "gasConstant": 287.05,
-    "hasAtmosphere": true
+    "tempLapsRate": 0.0065
+  },
+  "simulationParameters": {
+    "dt": 0.1,
+    "printInterval": 100,
+    "totalTime": 100.0
   }
 }

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <iomanip>
-#include "AircraftPhysics.h"
-#include "ConfigLoader.h"
+#include <FlightSim/AircraftPhysics.h>
+#include <FlightSim/ConfigLoader.h>
 
 void printCSVHeader() {
     std::cout << "Time,PosX,PosY,PosZ,VelX,VelY,VelZ,Speed,Altitude,Roll,Pitch,Yaw,Throttle,RPM,AirDensity" << std::endl;

@@ -1,17 +1,17 @@
-# Aircraft Physics Simulation
+# Flight Simulation Library
 
-Real-time aircraft flight dynamics simulation with network interface for external control and monitoring.
+Modular C++ physics library for aircraft simulation with multiple applications.
 
 ## Overview
 
-A high-fidelity physics engine for aircraft simulation featuring:
+A high-fidelity, reusable physics engine for aircraft simulation featuring:
 
 - **Realistic Aerodynamics**: Lift, drag, thrust with altitude-dependent air density
 - **Engine Dynamics**: RPM-based power with spool-up/down lag
 - **Planetary Environments**: Configurable gravity and atmospheres (Earth, Mars, custom)
 - **6-DOF Motion**: Full 6 degrees of freedom physics
 - **JSON Configuration**: All parameters loaded from JSON files
-- **CSV Output**: Time-series data export for analysis
+- **Modular Design**: Core library usable in CLI, GUI, network servers, tests
 
 ## Quick Start
 
@@ -21,11 +21,14 @@ A high-fidelity physics engine for aircraft simulation featuring:
 # Build
 .\scripts\build.ps1
 
-# Run with default config
+# Run CLI app with default config
 .\scripts\run.ps1
 
 # Run with custom config
-.\build\Debug\aircraft_sim.exe config_mars.json
+.\scripts\run.ps1 -ConfigFile config_mars.json
+
+# Or run directly
+.\build\apps\cli\Release\FlightSim.exe config.json
 ```
 
 ### Configuration
@@ -46,17 +49,22 @@ See `config.json` (Earth) or `config_mars.json` for examples.
 ## Architecture
 
 ```
-Core Components:
-├── AircraftPhysics.h    → Physics engine (forces, integration)
-├── AircraftSpec.h       → Aircraft properties (mass, thrust, etc)
-├── AircraftState.h      → Current state (position, velocity, controls)
-├── Planet.h             → Environment (gravity, atmosphere)
-├── ConfigLoader.h       → JSON configuration loading
-└── Vec3.h               → 3D vector math
-
-Build System:
-├── CMakeLists.txt       → CMake configuration with FetchContent
-└── scripts/             → Build and run scripts
+Project Structure:
+├── lib/FlightSim/           → Core physics library (header-only)
+│   ├── include/FlightSim/
+│   │   ├── AircraftPhysics.h    → Physics engine
+│   │   ├── AircraftSpec.h       → Aircraft properties
+│   │   ├── AircraftState.h      → State representation
+│   │   ├── Planet.h             → Environment model
+│   │   ├── ConfigLoader.h       → JSON configuration
+│   │   └── Vec3.h               → Vector math
+│   └── CMakeLists.txt
+├── apps/
+│   └── cli/                 → Command-line application
+│       ├── main.cpp         → CSV output simulation
+│       └── CMakeLists.txt
+├── scripts/                 → Build and run automation
+└── config*.json             → Configuration files
 ```
 
 ## Current Features

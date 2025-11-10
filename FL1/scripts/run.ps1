@@ -1,7 +1,11 @@
-# Aircraft Simulation Run Script
+# Flight Simulation Run Script
+
+param(
+    [string]$ConfigFile = "config.json"
+)
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  Running Aircraft Simulation" -ForegroundColor Cyan
+Write-Host "  Running Flight Simulation" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -11,10 +15,8 @@ $projectRoot = Split-Path -Parent $scriptDir
 
 # Find the executable
 $exePaths = @(
-    "$projectRoot\build\Debug\aircraft_sim.exe",
-    "$projectRoot\build\Release\aircraft_sim.exe",
-    "$projectRoot\build\aircraft_sim.exe",
-    "$projectRoot\aircraft_sim.exe"
+    "$projectRoot\build\apps\cli\Release\FlightSim.exe",
+    "$projectRoot\build\apps\cli\Debug\FlightSim.exe"
 )
 
 $exeFound = $null
@@ -27,10 +29,16 @@ foreach ($path in $exePaths) {
 
 if ($exeFound) {
     Write-Host "Found executable: $exeFound" -ForegroundColor Green
+    Write-Host "Configuration file: $ConfigFile" -ForegroundColor Green
     Write-Host ""
     
-    # Run the simulation
-    & $exeFound
+    # Run the simulation from project root (so relative paths work)
+    Push-Location $projectRoot
+    try {
+        & $exeFound $ConfigFile
+    } finally {
+        Pop-Location
+    }
     
     $exitCode = $LASTEXITCODE
     Write-Host ""
