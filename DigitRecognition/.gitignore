@@ -1,3 +1,31 @@
-build
-data/mnist_data/*
-data/mnist_images/*
+# Build directories
+build/
+.vscode/
+
+# Python virtual environment
+venv/
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Data directories (MNIST dataset)
+data/
+
+# IDE files
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
