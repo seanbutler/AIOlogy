@@ -22,7 +22,8 @@ namespace ANN {
     class Layer {
     public:
         Layer(const int input_size, const int output_size, 
-              const WeightInitConfig& weight_config = WeightInitConfig{})
+              const WeightInitConfig& weight_config = WeightInitConfig{},
+              const std::string& activation = "sigmoid")
             : inputs_(input_size, 0.0)
             , outputs_(output_size, 0.0)
             , weights_(input_size * output_size, 0.0) // flat vector to hold weights, think of me as a 2d array, this is where the learning is recorded    
@@ -30,8 +31,8 @@ namespace ANN {
             , pre_activations_(output_size, 0.0)  // Initialize pre-activation storage
             , weight_gradients_(input_size * output_size, 0.0)  // Initialize gradient storage
             , bias_gradients_(output_size, 0.0)
-            , activation_function(ANN::get_activation("sigmoid"))  // Default activation function
-            , activation_derivative(ANN::sigmoid_derivative)   // Default activation derivative
+            , activation_function(ANN::get_activation(activation))  // Set from parameter
+            , activation_derivative(activation == "relu" ? ANN::relu_derivative : ANN::sigmoid_derivative)  // Set from parameter
         {
             //
             // Initialize weights using specified method

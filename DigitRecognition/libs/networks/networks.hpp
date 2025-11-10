@@ -20,14 +20,15 @@ namespace ANN {
         public:
             Network(const std::vector<int>&layer_sizes = {784, 128, 64, 10}, 
                     const WeightInitConfig& weight_config = WeightInitConfig{},
-                    ANN::LearningRateConfig lr_config = ANN::LearningRateConfig{})
-                : input_layer(layer_sizes[0], layer_sizes[1], weight_config),
-                  output_layer(layer_sizes[layer_sizes.size()-2], layer_sizes[layer_sizes.size()-1], weight_config),
+                    ANN::LearningRateConfig lr_config = ANN::LearningRateConfig{},
+                    const std::string& activation = "sigmoid")
+                : input_layer(layer_sizes[0], layer_sizes[1], weight_config, activation),
+                  output_layer(layer_sizes[layer_sizes.size()-2], layer_sizes[layer_sizes.size()-1], weight_config, activation),
                   learning_rate_config(lr_config)
             {
                 // Create hidden layers (if any)
                 for(auto i = 1; i < layer_sizes.size() - 2; i++) {
-                    layers.emplace_back(Layer(layer_sizes[i], layer_sizes[i+1], weight_config));
+                    layers.emplace_back(Layer(layer_sizes[i], layer_sizes[i+1], weight_config, activation));
                 }
 
                 // Set up layer connectivity
@@ -104,8 +105,9 @@ namespace ANN {
                 // Backward Pass - Calculate loss gradients for output layer
                 std::vector<double> loss_gradients(output_layer.outputs_.size());
                 for (size_t i = 0; i < output_layer.outputs_.size(); ++i) {
-                    // MSE derivative: ∂Loss/∂output = 2 * (predicted - actual)
-                    loss_gradients[i] = 2.0 * (output_layer.outputs_[i] - target[i]);
+                    // MSE derivative: ∂Loss/∂output = (2/N) * (predicted - actual)
+                    // Must match the loss function which divides by N
+                    loss_gradients[i] = (2.0 / target.size()) * (output_layer.outputs_[i] - target[i]);
                 }
                 
                 // Start backpropagation from output layer

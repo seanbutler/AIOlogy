@@ -46,7 +46,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     ANN::WeightInitConfig weight_config;
     weight_config.method = config.network.weight_init.method;
     weight_config.range = config.network.weight_init.range;
-    ANN::Network network(config.network.layers, weight_config, config.training.learning_rate);
+    ANN::Network network(config.network.layers, weight_config, config.training.learning_rate, config.network.activation);
     ANN::TrainingSet training_set;
 
     //
