@@ -41,10 +41,15 @@ DigitRecognition/
 │   ├── networks/            # Network management and training
 │   └── training/            # Training dataset management
 ├── scripts/                 # Build and utility scripts
-│   ├── build.ps1           # Build the entire project
-│   ├── run.ps1             # Execute the main application
-│   ├── test.ps1            # Run all unit tests
-│   └── get_mnist.py        # Download MNIST dataset
+│   ├── build.ps1           # Build the entire project (Windows)
+│   ├── build.sh            # Build the entire project (Linux/macOS)
+│   ├── run.ps1             # Execute the main application (Windows)
+│   ├── run.sh              # Execute the main application (Linux/macOS)
+│   ├── test.ps1            # Run all unit tests (Windows)
+│   ├── setup_env.sh        # Setup Python virtual environment (Linux/macOS)
+│   ├── get_mnist.py        # Download MNIST dataset (Windows)
+│   ├── get_mnist.sh        # Download MNIST dataset (Linux/macOS)
+│   └── get_mnist_simple.py # Lightweight MNIST downloader
 ├── .gitignore              # Git ignore patterns
 ├── CHANGELOG.md            # Detailed version history
 ├── CMakeLists.txt          # Main CMake configuration with version
@@ -55,28 +60,66 @@ DigitRecognition/
 └── version.h.in            # Version template for C++ code generation
 ```
 
+## Platform Support
+
+This project supports both Windows and Linux/macOS with platform-specific build scripts:
+
+### Windows (PowerShell)
+- Uses PowerShell scripts (`.ps1`)
+- Manual Python environment setup
+- Separate MNIST download step
+
+### Linux/macOS (Bash)
+- Uses Bash scripts (`.sh`)
+- Automated Python virtual environment setup
+- Integrated MNIST download during build
+- Lightweight Python dependencies (no torch/torchvision)
+
 ## Quick Start
 
 ### Prerequisites
 
-- **C++ Compiler** with C++23 support (Visual Studio 2022 recommended on Windows)
+#### Windows
+- **C++ Compiler** with C++23 support (Visual Studio 2022 recommended)
 - **CMake** 3.16 or higher
 - **Python** 3.7+ (for MNIST data download)
-- **PowerShell** (for build scripts on Windows)
+- **PowerShell** (for build scripts)
+
+#### Linux/macOS
+- **C++ Compiler** with C++23 support (GCC 11+ or Clang 14+)
+- **CMake** 3.16 or higher
+- **Python** 3.7+ (for MNIST data download)
+- **Bash** shell (for build scripts)
+- **Build essentials** (`sudo apt install build-essential` on Ubuntu/Debian)
 
 ### Dependencies
 
+#### C++ Dependencies (All Platforms)
 - **nlohmann/json** - JSON parsing for configuration (automatically downloaded via CMake)
 - **SDL2** - Image loading support (automatically downloaded via CMake)
 
+#### Python Dependencies (Linux/macOS)
+- **pillow** ≥ 10.0.0 - Image processing for MNIST conversion
+- **numpy** ≥ 1.24.0 - Numerical operations for image data
+
+*Python dependencies are automatically installed in a virtual environment during the build process on Linux/macOS.*
+
 ### 1. Build the Project
 
+#### Windows (PowerShell)
 ```powershell
 .\scripts\build.ps1
 ```
 
+#### Linux/macOS (Bash)
+```bash
+./scripts/build.sh
+```
+
 **What this does:**
 - Creates the `build/` directory
+- Sets up Python virtual environment (Linux/macOS only)
+- Downloads MNIST dataset if not present
 - Runs CMake configuration for your platform
 - Compiles all libraries (activations, layers, networks)
 - Builds the main application and test executables
@@ -84,8 +127,14 @@ DigitRecognition/
 
 ### 2. Download Training Data
 
+#### Windows (PowerShell)
 ```powershell
 python .\scripts\get_mnist.py
+```
+
+#### Linux/macOS (Bash)
+```bash
+./scripts/get_mnist.sh
 ```
 
 **What this does:**
@@ -94,10 +143,18 @@ python .\scripts\get_mnist.py
 - Creates `mnist_images/train/0/`, `mnist_images/train/1/`, etc.
 - Provides visual inspection of the training data
 
+**Note:** On Linux/macOS, MNIST data is automatically downloaded during the build process if not present.
+
 ### 3. Run Tests
 
+#### Windows (PowerShell)
 ```powershell
 .\scripts\test.ps1
+```
+
+#### Linux/macOS (Bash)
+```bash
+cd build && ctest --verbose
 ```
 
 **What this does:**
@@ -133,8 +190,14 @@ Edit `config.json` to customize your neural network:
 
 ### 5. Run the Application
 
+#### Windows (PowerShell)
 ```powershell
 .\scripts\run.ps1
+```
+
+#### Linux/macOS (Bash)
+```bash
+./scripts/run.sh
 ```
 
 **What this does:**
@@ -333,12 +396,43 @@ This project is designed for learning neural networks:
 - Visualizable training data
 - Measurable performance metrics
 
+## Automated Setup (Linux/macOS)
+
+The Linux/macOS build system provides fully automated setup:
+
+```bash
+# One command does everything:
+./scripts/build.sh
+
+# What happens automatically:
+# 1. Creates Python virtual environment (./venv/)
+# 2. Installs minimal dependencies (pillow, numpy)
+# 3. Downloads MNIST dataset if not present
+# 4. Configures CMake build system
+# 5. Compiles all C++ components
+# 6. Links final executable
+```
+
+**Benefits:**
+- **Zero Configuration** - Works out of the box
+- **Minimal Dependencies** - No heavy ML frameworks required
+- **Fast Setup** - Lightweight Python environment
+- **Reproducible** - Consistent environment across machines
+
 ## Development Workflow
 
+#### Windows
 1. **Configure** - Edit `config.json` to set network architecture and training parameters
 2. **Build** - Run `.\scripts\build.ps1` to compile changes
 3. **Test** - Run `.\scripts\test.ps1` to validate functionality
 4. **Train** - Execute `.\scripts\run.ps1` to train and test the network
+5. **Iterate** - Modify configuration and repeat for experimentation
+
+#### Linux/macOS
+1. **Configure** - Edit `config.json` to set network architecture and training parameters
+2. **Build** - Run `./scripts/build.sh` to compile changes (includes environment setup)
+3. **Test** - Run `cd build && ctest --verbose` to validate functionality
+4. **Train** - Execute `./scripts/run.sh` to train and test the network
 5. **Iterate** - Modify configuration and repeat for experimentation
 
 
