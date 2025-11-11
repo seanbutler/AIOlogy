@@ -11,7 +11,7 @@ target_include_directories(config INTERFACE
 )
 
 # Link nlohmann_json
-target_link_libraries(config INTERFACE
+target_link_libraries(config PUBLIC
     nlohmann_json::nlohmann_json
 )
 
