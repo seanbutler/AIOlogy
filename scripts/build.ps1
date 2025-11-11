@@ -37,18 +37,26 @@ if ($cmakeAvailable) {
                 Write-Host "  Build Successful!" -ForegroundColor Green
                 Write-Host "========================================" -ForegroundColor Green
                 Write-Host ""
-                Write-Host "Executable location:" -ForegroundColor Cyan
+                Write-Host "Executables built:" -ForegroundColor Cyan
                 
-                # Find the executable
-                $exe = Get-ChildItem -Recurse -Filter "FlightSim.exe" | Select-Object -First 1
-                if ($exe) {
-                    Write-Host "  $($exe.FullName)" -ForegroundColor White
-                    Write-Host ""
-                    Write-Host "Run with:" -ForegroundColor Cyan
-                    Write-Host "  .\scripts\run.ps1" -ForegroundColor White
-                    Write-Host "or:" -ForegroundColor Cyan
-                    Write-Host "  .\$($exe.FullName -replace [regex]::Escape($PWD.Path + '\'), '') [config.json]" -ForegroundColor White
+                # Find CLI executable
+                $cliExe = Get-ChildItem -Recurse -Filter "FlightSim.exe" -Path "apps\cli" -ErrorAction SilentlyContinue | Select-Object -First 1
+                if ($cliExe) {
+                    Write-Host "  CLI: $($cliExe.FullName)" -ForegroundColor White
                 }
+                
+                # Find Server executable
+                $serverExe = Get-ChildItem -Recurse -Filter "FlightSimServer.exe" -Path "apps\server" -ErrorAction SilentlyContinue | Select-Object -First 1
+                if ($serverExe) {
+                    Write-Host "  Server: $($serverExe.FullName)" -ForegroundColor White
+                }
+                
+                Write-Host ""
+                Write-Host "Run CLI with:" -ForegroundColor Cyan
+                Write-Host "  .\scripts\run.ps1" -ForegroundColor White
+                Write-Host ""
+                Write-Host "Run Server with:" -ForegroundColor Cyan
+                Write-Host "  .\scripts\run_server.ps1" -ForegroundColor White
             } else {
                 Write-Host ""
                 Write-Host "Build failed!" -ForegroundColor Red
