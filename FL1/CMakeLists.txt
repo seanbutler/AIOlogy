@@ -16,3 +16,4 @@ add_subdirectory(lib/FlightSim)
 
 # Add applications
 add_subdirectory(apps/cli)
+add_subdirectory(apps/server)
