@@ -43,14 +43,14 @@ FL1/
 ### Implementation Tasks
 
 #### Refactoring Checklist
-- [ ] Create `lib/FlightSim/` directory structure
-- [ ] Move headers to `lib/FlightSim/include/FlightSim/`
-- [ ] Create library CMakeLists.txt with proper include paths
-- [ ] Move current main.cpp to `apps/cli/`
-- [ ] Update root CMakeLists.txt to build library first
-- [ ] Update app CMakeLists.txt to link against library
-- [ ] Test build system works
-- [ ] Update build scripts to work with new structure
+- [x] Create `lib/FlightSim/` directory structure
+- [x] Move headers to `lib/FlightSim/include/FlightSim/`
+- [x] Create library CMakeLists.txt with proper include paths
+- [x] Move current main.cpp to `apps/cli/`
+- [x] Update root CMakeLists.txt to build library first
+- [x] Update app CMakeLists.txt to link against library
+- [x] Test build system works
+- [x] Update build scripts to work with new structure
 
 #### Benefits
 ✅ Reusable physics library  

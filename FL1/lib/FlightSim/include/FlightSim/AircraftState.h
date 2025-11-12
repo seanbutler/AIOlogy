@@ -48,8 +48,8 @@ struct AircraftState {
         double sy = std::sin(yaw);
         double cp = std::cos(pitch);
         double sp = std::sin(pitch);
-        double cr = std::cos(roll);
-        double sr = std::sin(roll);
+        // double cr = std::cos(roll);
+        // double sr = std::sin(roll);
         
         return Vec3(
             cy * cp,
