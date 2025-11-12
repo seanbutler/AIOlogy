@@ -1,0 +1,25 @@
+DigitRecognition Configuration and Results
+========================================
+Version: 0.3.0
+Git Commit: 96d4a26
+Build Date: 2025-11-10 16:02:26
+
+Network Layers: 784, 128, 10
+Activation: relu
+Weight Init: he [0, 0.1]
+Training Epochs: 35
+Learning Rate Schedule: constant
+Learning Rate Initial: 0.01
+Learning Rate Decay: 0
+Learning Rate Min: 0.0001
+Learning Rate Step: 1
+Shuffle: true
+Train Path: ./data/mnist_images/train/
+Test Path: ./data/mnist_images/test/
+Image Size: 28x28
+Normalize: true
+
+=== FINAL RESULTS ===
+Total tested: 10000 images
+Correct predictions: 8356
+Final accuracy: 83.56%
