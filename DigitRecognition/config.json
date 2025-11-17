@@ -1,7 +1,7 @@
 {
   "network": {
-    "layers": [784, 128, 10],
-    "learning_rate": 0.05,
+    "layers": [784, 512, 256, 128, 64, 10],
+    "learning_rate": 0.005,
     "activation": "relu",
     "weight_init": {
       "method": "he",
@@ -10,17 +10,17 @@
   },
 
   "training": {
-    "epochs": 3,
+    "epochs": 25,
     "shuffle": true,
     "data_path": "./data/mnist_images/",
     "learning_rate": {
-      "method": "constant",
-      "values": [0.05]
-    }
+      "initial": 0.01,
+      "schedule": "exponential",
+      "decay": 0.05    }
   },
 
   "data": {
-    "train_path": "./data/mnist_images/test/",
+    "train_path": "./data/mnist_images/train/",
     "test_path": "./data/mnist_images/test/",
     "image_size": [28, 28],
     "normalize": true
