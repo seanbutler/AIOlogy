@@ -96,8 +96,9 @@ def plot_training_curves(loss_history, accuracy_history, validation_accuracy_his
     
     # Create figure with subplot_mosaic layout
     mosaic = [
-        ['loss', 'accuracy', 'loss_stats', 'improvement', 'config'],
-        ['loss', 'accuracy', 'weight_dist', 'class_acc', 'config'],
+        ['loss','loss', 'accuracy','accuracy', 'config'],
+        ['loss', 'loss', 'accuracy', 'accuracy', 'config'],
+        ['loss_stats', 'improvement','weight_dist', 'class_acc', 'config'],
         ['d0', 'd1', 'd2', 'd3', 'd4'],
         ['d5', 'd6', 'd7', 'd8', 'd9']
     ]
