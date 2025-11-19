@@ -109,6 +109,7 @@ def plot_training_curves(loss_history, accuracy_history, validation_accuracy_his
     
     # 1. Training Loss Plot
     ax1 = axs['loss']
+    ax1.set_ylim(0.0, 1.0) 
     ax1.plot(loss_history, label='Training Loss', color='blue', linewidth=2)
     ax1.set_xlabel(f'Iteration (every {log_interval} batches)', fontsize=11)
     ax1.set_ylabel('Loss', fontsize=11)
@@ -128,6 +129,7 @@ def plot_training_curves(loss_history, accuracy_history, validation_accuracy_his
     
     # 2. Accuracy Plot
     ax2 = axs['accuracy']
+    ax2.set_ylim(85.0, 100.0) 
     epochs = range(1, len(accuracy_history) + 1)
     ax2.plot(epochs, accuracy_history, label='Test Accuracy', color='green', linewidth=2, marker='o', markersize=6)
     ax2.plot(epochs, validation_accuracy_history, label='Validation Accuracy', color='blue', linewidth=2, marker='s', markersize=6)
@@ -173,6 +175,7 @@ Min Loss: {min(loss_history):.4f}
     
     # 4. Loss Statistics
     ax4 = axs['loss_stats']
+    ax4.set_ylim(0.0, 3.0) 
     loss_stats = {
         'Min': min(loss_history),
         'Max': max(loss_history),
@@ -193,6 +196,8 @@ Min Loss: {min(loss_history):.4f}
     
     # 5. Accuracy Improvement
     ax5 = axs['improvement']
+    ax5.set_ylim(-1.5, 8.0) 
+
     if len(accuracy_history) > 1:
         improvements = [accuracy_history[i] - accuracy_history[i-1] 
                        for i in range(1, len(accuracy_history))]
@@ -206,7 +211,6 @@ Min Loss: {min(loss_history):.4f}
     
     # 6. Simple Confusion Matrix Preview (for 10 classes)
     ax6 = axs['class_acc']
-    
     # Calculate simple per-class accuracy
     class_correct = [0] * 10
     class_total = [0] * 10
@@ -230,7 +234,7 @@ Min Loss: {min(loss_history):.4f}
     ax6.set_yticklabels([f'Digit {i}' for i in range(10)], fontsize=8)
     ax6.set_xlabel('Accuracy (%)', fontsize=10)
     ax6.set_title('Per-Class Accuracy (Sample)', fontsize=11, fontweight='bold')
-    ax6.grid(True, alpha=0.3, axis='x')
+    ax6.grid(True, alpha=0.3, axis='y')
     
     # 9. Weight Distribution Histogram
     ax9 = axs['weight_dist']
