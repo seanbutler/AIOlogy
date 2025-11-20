@@ -85,7 +85,7 @@ def plot_training_curves(loss_history, accuracy_history, validation_accuracy_his
     
     # 2. Accuracy Plot
     ax2 = axs['accuracy']
-    ax2.set_ylim(85.0, 100.0) 
+    ax2.set_ylim(80.0, 100.0) 
     epochs = range(1, len(accuracy_history) + 1)
     ax2.plot(epochs, accuracy_history, label='Test Accuracy', color='green', linewidth=2, marker='o', markersize=6)
     ax2.plot(epochs, validation_accuracy_history, label='Validation Accuracy', color='blue', linewidth=2, marker='s', markersize=6)

@@ -1,8 +1,11 @@
-
 {
   "model": {
     "input_size": 784,
-    "hidden_layers": [ 512, 128, 64 ],
+    "hidden_layers": [
+      64,
+      32,
+      16
+    ],
     "output_size": 10
   },
   "training": {
