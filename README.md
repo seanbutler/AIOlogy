@@ -36,7 +36,24 @@ cd FL1
 
 ---
 
-### 3. Exploring Linear Regression
+### 3. MNIST_Classifier
+![Status](https://img.shields.io/badge/status-stable-green) ![Python](https://img.shields.io/badge/Python-3.8+-blue)
+
+PyTorch-based neural network training framework for MNIST with experiment management, comprehensive visualization dashboards, and study-based batch experiments.
+
+**Quick Start:**
+```powershell
+cd MNIST_Classifier
+python -m venv venv && venv\Scripts\activate && pip install -r requirements.txt
+python main.py
+```
+
+**Tech:** Python, PyTorch, Matplotlib, NumPy  
+📁 [Details →](MNIST_Classifier/)
+
+---
+
+### 4. Exploring Linear Regression
 ![Status](https://img.shields.io/badge/status-in_progress-yellow)
 
 Linear regression from first principles - gradient descent, cost functions, feature scaling.
