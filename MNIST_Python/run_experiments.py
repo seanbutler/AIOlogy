@@ -140,17 +140,28 @@ if __name__ == "__main__":
     experiments = [
         # Baseline
         {'name': 'baseline', 'hidden_layers': [64, 32], 'learning_rate': 0.001, 'batch_size': 64, 'epochs': 32},
-        
+
+
+        {'name': 'small_9', 'hidden_layers': [9], 'learning_rate': 0.001, 'batch_size': 64, 'epochs': 32},
+        {'name': 'small_4', 'hidden_layers': [4], 'learning_rate': 0.001, 'batch_size': 64, 'epochs': 32},
+        {'name': 'small_1', 'hidden_layers': [1], 'learning_rate': 0.001, 'batch_size': 64, 'epochs': 32},
+
+
+        {'name': 'small_9_9', 'hidden_layers': [9, 9], 'learning_rate': 0.001, 'batch_size': 64, 'epochs': 32},
+        {'name': 'small_4_4', 'hidden_layers': [4, 4], 'learning_rate': 0.001, 'batch_size': 64, 'epochs': 32},
+        {'name': 'small_1_1', 'hidden_layers': [1, 1], 'learning_rate': 0.001, 'batch_size': 64, 'epochs': 32},
+
+
         # Test different architectures
 
-        {'name': 'arch_widest_1', 'hidden_layers': [512, 128, 64], 'learning_rate': 0.001, 'batch_size': 128, 'epochs': 32},
-        {'name': 'arch_widest_2', 'hidden_layers': [512, 128, 64], 'learning_rate': 0.001, 'batch_size': 64, 'epochs': 32},
+        # {'name': 'arch_widest_1', 'hidden_layers': [512, 128, 64], 'learning_rate': 0.001, 'batch_size': 128, 'epochs': 32},
+        # {'name': 'arch_widest_2', 'hidden_layers': [512, 128, 64], 'learning_rate': 0.001, 'batch_size': 64, 'epochs': 32},
 
         # {'name': 'arch_wider_1', 'hidden_layers': [128, 64], 'learning_rate': 0.001, 'batch_size': 128, 'epochs': 32},
         # {'name': 'arch_wider_2', 'hidden_layers': [128, 64], 'learning_rate': 0.001, 'batch_size': 64, 'epochs': 32},
 
-        {'name': 'arch_deeper_1', 'hidden_layers': [64, 32, 16], 'learning_rate': 0.001, 'batch_size': 128, 'epochs': 32},
-        {'name': 'arch_deeper_2', 'hidden_layers': [64, 32, 16], 'learning_rate': 0.001, 'batch_size': 64, 'epochs': 32},
+        # {'name': 'arch_deeper_1', 'hidden_layers': [64, 32, 16], 'learning_rate': 0.001, 'batch_size': 128, 'epochs': 32},
+        # {'name': 'arch_deeper_2', 'hidden_layers': [64, 32, 16], 'learning_rate': 0.001, 'batch_size': 64, 'epochs': 32},
 
         # {'name': 'arch_single_1', 'hidden_layers': [128], 'learning_rate': 0.001, 'batch_size': 128, 'epochs': 32},
         # {'name': 'arch_single_2', 'hidden_layers': [128], 'learning_rate': 0.001, 'batch_size': 64, 'epochs': 32},
