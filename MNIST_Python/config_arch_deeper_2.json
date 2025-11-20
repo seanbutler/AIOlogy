@@ -1,13 +1,16 @@
-
 {
   "model": {
     "input_size": 784,
-    "hidden_layers": [ 512, 128, 64 ],
+    "hidden_layers": [
+      64,
+      32,
+      16
+    ],
     "output_size": 10
   },
   "training": {
     "epochs": 32,
-    "batch_size": 128,
+    "batch_size": 64,
     "learning_rate": 0.001,
     "momentum": 0.9,
     "log_interval": 100
